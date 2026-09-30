@@ -1,138 +1,622 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Secret X - Private Chat</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #d1dbe4; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    
-    .app-container { width: 100%; max-width: 1000px; height: 90vh; background: #fff; display: flex; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); overflow: hidden; }
-    
-    /* Auth Modal */
-    .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #00a884; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .auth-card { background: white; padding: 30px; border-radius: 8px; width: 350px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .auth-card h2 { color: #00a884; margin-bottom: 20px; }
-    .auth-card input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
-    .auth-card button { width: 100%; padding: 12px; background: #00a884; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-    
-    /* Left Sidebar */
-    .sidebar { width: 35%; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; background: #f0f2f5; }
-    .sidebar-header { background: #f0f2f5; padding: 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
-    .user-info { font-weight: bold; color: #111b21; font-size: 14px; overflow: hidden; text-overflow: ellipsis; }
-    
-    .action-box { padding: 15px; background: #fff; border-bottom: 1px solid #e0e0e0; }
-    .action-box h4 { margin-bottom: 10px; color: #00a884; font-size: 14px; }
-    .action-box input { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px; }
-    .action-box button { width: 100%; padding: 8px; background: #00a884; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    
-    .group-list { flex: 1; overflow-y: auto; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret X - Private Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    /* Right Chat Area */
-    .chat-area { width: 65%; display: flex; flex-direction: column; background: #efeae2; }
-    .chat-header { background: #f0f2f5; padding: 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
-    .messages-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-    
-    .chat-input-bar { padding: 10px 15px; background: #f0f2f5; display: flex; gap: 10px; }
-    .chat-input-bar input { flex: 1; padding: 10px; border: 1px solid #fff; border-radius: 8px; outline: none; }
-    .chat-input-bar button { padding: 10px 20px; background: #00a884; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        body {
+            background-color: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    .hidden { display: none !important; }
-  </style>
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 90vh;
+            background: #1a1a1a;
+            display: flex;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .auth-card {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .auth-card h2 {
+            color: #00ff88;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .auth-card input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .auth-card input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .auth-card button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-card button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .auth-toggle {
+            color: #888;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .auth-toggle span {
+            color: #00ff88;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .sidebar {
+            width: 30%;
+            background: #111;
+            border-right: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h3 {
+            color: #00ff88;
+            font-size: 20px;
+        }
+
+        .user-info {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chat-item {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-item:hover {
+            background: #1a1a1a;
+        }
+
+        .chat-item.active {
+            background: #1a1a1a;
+            border-left: 3px solid #00ff88;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ff88, #0066ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .chat-details h4 {
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .chat-details p {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0a0a0a;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: #111;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-header h3 {
+            color: #fff;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #333;
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: #111;
+            border-top: 1px solid #222;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        .chat-input button {
+            padding: 12px 25px;
+            background: #00ff88;
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chat-input button:hover {
+            background: #00cc6a;
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error-msg {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .success-msg {
+            color: #00ff88;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ff88;
+        }
+    </style>
 </head>
 <body>
-
-  <!-- Auth Screen -->
-  <div id="auth-screen" class="auth-overlay">
-    <div class="auth-card">
-      <h2>Secret X Login</h2>
-      <input type="email" id="auth-email" placeholder="Email Address">
-      <input type="password" id="auth-password" placeholder="Password">
-      <button id="signup-btn">Sign Up</button>
-      <button id="login-btn" style="background:#111b21;">Login</button>
-    </div>
-  </div>
-
-  <!-- Main App -->
-  <div class="app-container">
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <span class="user-info" id="current-user-email">User</span>
-        <button id="logout-btn" style="background:none; border:none; color:#e53935; cursor:pointer; font-size:12px;">Logout</button>
-      </div>
-
-      <div class="action-box">
-        <h4>Naya Group Banayein</h4>
-        <input type="text" id="new-group-name" placeholder="Group Name">
-        <button id="create-group-btn">Create Group</button>
-      </div>
-
-      <div class="action-box">
-        <h4>Group Join Karein</h4>
-        <input type="text" id="join-group-id" placeholder="Group ID Paste Karein">
-        <button id="join-group-btn">Join Request Bhejein</button>
-      </div>
-
-      <div class="group-list" id="groups-list"></div>
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <h2>🔐 Secret X</h2>
+            <div id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <button onclick="login()">Login</button>
+                <p class="error-msg" id="loginError"></p>
+                <p class="auth-toggle">Account nahi hai? <span onclick="toggleAuth()">Register</span></p>
+            </div>
+            <div id="registerForm" class="hidden">
+                <input type="text" id="regName" placeholder="Name">
+                <input type="email" id="regEmail" placeholder="Email">
+                <input type="password" id="regPassword" placeholder="Password">
+                <button onclick="register()">Register</button>
+                <p class="error-msg" id="regError"></p>
+                <p class="success-msg" id="regSuccess"></p>
+                <p class="auth-toggle">Account hai? <span onclick="toggleAuth()">Login</span></p>
+            </div>
+        </div>
     </div>
 
-    <div class="chat-area">
-      <div class="chat-header">
-        <h3 id="active-chat-name">Group Select Karein</h3>
-      </div>
-      <div class="messages-container" id="messages-container"></div>
-      <div class="chat-input-bar hidden" id="input-bar">
-        <input type="text" id="msg-input" placeholder="Type a message">
-        <button id="send-btn">Send</button>
-      </div>
+    <div class="app-container hidden" id="appContainer">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>🔐 Secret X</h3>
+                <div class="user-info">
+                    <div id="userName"></div>
+                    <div id="userRole" style="color: #00ff88;"></div>
+                </div>
+            </div>
+            <div class="chat-list" id="chatList"></div>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="chat-avatar" id="chatAvatar">?</div>
+                <h3 id="chatTitle">Select a chat</h3>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <p style="color: #888; text-align: center; margin-top: 50px;">
+                    Chat select karo messages dekhne ke liye
+                </p>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-    // Replaced with complete Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyC04k...", // Correct API key automatically attaches via session
-      authDomain: "secret-x-c3045.firebaseapp.com",
-      projectId: "secret-x-c3045",
-      storageBucket: "secret-x-c3045.appspot.com",
-      messagingSenderId: "33827453444",
-      appId: "1:33827453444:web:secretxapp"
-    };
+    <script>
+        // ✅ TUMHARA ACTUAL FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCX9myU2sx-LCyGAUsKuVEOJJXo7jhurdg",
+            authDomain: "secret-x-c3045.firebaseapp.com",
+            projectId: "secret-x-c3045",
+            storageBucket: "secret-x-c3045.firebasestorage.app",
+            messagingSenderId: "116252360970",
+            appId: "1:116252360970:web:98622eb77bf5646c89baf3"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-    const emailInput = document.getElementById('auth-email');
-    const passInput = document.getElementById('auth-password');
+        let currentUser = null;
+        let currentChat = null;
+        let currentRole = 'member';
 
-    document.getElementById('signup-btn').addEventListener('click', () => {
-      createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
-        .then(() => alert("Sign Up Successful!"))
-        .catch(err => alert("Error: " + err.message));
-    });
+        function toggleAuth() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('registerForm').classList.toggle('hidden');
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('regError').textContent = '';
+            document.getElementById('regSuccess').textContent = '';
+        }
 
-    document.getElementById('login-btn').addEventListener('click', () => {
-      signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
-        .then(() => alert("Login Successful!"))
-        .catch(err => alert("Error: " + err.message));
-    });
+        async function register() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
 
-    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            if (!name || !email || !password) {
+                document.getElementById('regError').textContent = 'Sab fields bharo!';
+                return;
+            }
 
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('current-user-email').innerText = user.email;
-      } else {
-        document.getElementById('auth-screen').classList.remove('hidden');
-      }
-    });
-  </script>
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    role: 'member',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                document.getElementById('regSuccess').textContent = 'Registration successful! Login karo.';
+                setTimeout(() => {
+                    toggleAuth();
+                }, 1500);
+            } catch (error) {
+                document.getElementById('regError').textContent = error.message;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                document.getElementById('loginError').textContent = error.message;
+            }
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    currentRole = userData.role || 'member';
+
+                    document.getElementById('authOverlay').classList.add('hidden');
+                    document.getElementById('appContainer').classList.remove('hidden');
+                    document.getElementById('userName').textContent = userData.name;
+                    document.getElementById('userRole').textContent = currentRole.toUpperCase();
+
+                    loadChats();
+                }
+            } else {
+                currentUser = null;
+                document.getElementById('authOverlay').classList.remove('hidden');
+                document.getElementById('appContainer').classList.add('hidden');
+            }
+        });
+
+        async function loadChats() {
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
+
+            // Group chat
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'chat-item';
+            groupDiv.onclick = (e) => openChat('group', 'Secret Group', null, e.currentTarget);
+            groupDiv.innerHTML = `
+                <div class="chat-avatar">G</div>
+                <div class="chat-details">
+                    <h4>Secret Group</h4>
+                    <p>Group chat</p>
+                </div>
+            `;
+            chatList.appendChild(groupDiv);
+
+            // Admin chat for members
+            if (currentRole === 'member') {
+                const adminQuery = await db.collection('users').where('role', '==', 'admin').get();
+                adminQuery.forEach(doc => {
+                    const adminData = doc.data();
+                    const adminDiv = document.createElement('div');
+                    adminDiv.className = 'chat-item';
+                    adminDiv.onclick = (e) => openChat('admin', adminData.name + ' (Admin)', doc.id, e.currentTarget);
+                    adminDiv.innerHTML = `
+                        <div class="chat-avatar">A</div>
+                        <div class="chat-details">
+                            <h4>${adminData.name} (Admin)</h4>
+                            <p>Private chat</p>
+                        </div>
+                    `;
+                    chatList.appendChild(adminDiv);
+                });
+            }
+
+            // Member chats for admin
+            if (currentRole === 'admin') {
+                const membersQuery = await db.collection('users').where('role', '==', 'member').get();
+                membersQuery.forEach(doc => {
+                    const memberData = doc.data();
+                    const memberDiv = document.createElement('div');
+                    memberDiv.className = 'chat-item';
+                    memberDiv.onclick = (e) => openChat('member', memberData.name, doc.id, e.currentTarget);
+                    memberDiv.innerHTML = `
+                        <div class="chat-avatar">${memberData.name[0].toUpperCase()}</div>
+                        <div class="chat-details">
+                            <h4>${memberData.name}</h4>
+                            <p>Private chat</p>
+                        </div>
+                    `;
+                    chatList.appendChild(memberDiv);
+                });
+            }
+        }
+
+        function openChat(type, name, userId = null, element = null) {
+            currentChat = { type, name, userId };
+            document.getElementById('chatTitle').textContent = name;
+            document.getElementById('chatAvatar').textContent = name[0].toUpperCase();
+
+            if (element) {
+                document.querySelectorAll('.chat-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                element.classList.add('active');
+            }
+
+            loadMessages();
+        }
+
+        async function loadMessages() {
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML = '';
+
+            let messagesQuery;
+            if (currentChat.type === 'group') {
+                messagesQuery = db.collection('chats').doc('group').collection('messages')
+                    .orderBy('timestamp', 'asc');
+            } else {
+                const chatId = [currentUser.uid, currentChat.userId].sort().join('_');
+                messagesQuery = db.collection('chats').doc(chatId).collection('messages')
+                    .orderBy('timestamp', 'asc');
+            }
+
+            messagesQuery.onSnapshot(snapshot => {
+                messagesDiv.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `message ${msg.senderId === currentUser.uid ? 'sent' : 'received'}`;
+                    
+                    const timeStr = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString() : '';
+                    msgDiv.innerHTML = `
+                        <div>${msg.text}</div>
+                        <div class="message-time">${timeStr}</div>
+                    `;
+                    messagesDiv.appendChild(msgDiv);
+                });
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+
+            if (!text || !currentChat) return;
+
+            // Permission check
+            if (currentChat.type !== 'group') {
+                if (currentRole === 'member' && currentChat.type !== 'admin') {
+                    alert('Members sirf admin ko message kar sakte hain!');
+                    return;
+                }
+            }
+
+            let chatRef;
+            if (currentChat.type === 'group') {
+                chatRef = db.collection('chats').doc('group').collection('messages');
+            } else {
+                const chatId = [currentUser.uid, currentChat.userId].sort().join('_');
+                chatRef = db.collection('chats').doc(chatId).collection('messages');
+            }
+
+            await chatRef.add({
+                text: text,
+                senderId: currentUser.uid,
+                senderName: document.getElementById('userName').textContent,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            input.value = '';
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
 </body>
 </html>
