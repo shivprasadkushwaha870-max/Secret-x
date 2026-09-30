@@ -1,5 +1,5 @@
 // ============================================
-// 🔐 AUTHENTICATION MODULE (FIXED)
+// 🔐 AUTHENTICATION MODULE (v4 - NAME/USERNAME FIX)
 // ============================================
 
 let currentUser = null;
@@ -24,7 +24,6 @@ function initializeAuth() {
   const loginError = document.getElementById('login-error');
   const registerError = document.getElementById('register-error');
 
-  // Toggle Forms
   const showRegisterBtn = document.getElementById('show-register');
   const showLoginBtn = document.getElementById('show-login');
 
@@ -46,25 +45,21 @@ function initializeAuth() {
     });
   }
 
-  // Login
   if (loginForm) {
     loginForm.addEventListener('submit', handleLogin);
     console.log('✅ Login listener attached');
   }
 
-  // Register
   if (registerForm) {
     registerForm.addEventListener('submit', handleRegister);
     console.log('✅ Register listener attached');
   }
 
-  // Logout
   const logoutBtn = document.getElementById('btn-logout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', handleLogout);
   }
 
-  // Auth State
   if (typeof auth !== 'undefined') {
     auth.onAuthStateChanged(handleAuthStateChange);
     console.log('✅ Auth state listener attached');
@@ -91,7 +86,7 @@ async function handleLogin(e) {
     console.log('🔄 Signing in...');
     await auth.signInWithEmailAndPassword(email, password);
   } catch (err) {
-    console.error('❌ Login error:', err);
+    console.error(' Login error:', err);
     if (loginError) loginError.textContent = getErrorMessage(err.code);
   }
 }
@@ -119,9 +114,10 @@ async function handleRegister(e) {
     console.log('🔄 Creating account...');
     const cred = await auth.createUserWithEmailAndPassword(email, password);
 
-    // Save user profile to Firestore
+    // Save BOTH username and name fields for compatibility
     await db.collection('users').doc(cred.user.uid).set({
       username: username,
+      name: username,
       email: email,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       online: true,
@@ -145,14 +141,16 @@ async function handleLogout() {
       });
     }
     await auth.signOut();
-    console.log('🚪 Logged out');
+    console.log(' Logged out');
   } catch (err) {
     console.error('Logout error:', err);
   }
 }
 
-// ---- AUTH STATE CHANGE (FIXED) ----
+// ---- AUTH STATE CHANGE (FIXED - handles both 'username' and 'name') ----
 async function handleAuthStateChange(user) {
+  console.log('🔄 Auth state changed:', user ? 'logged in' : 'logged out');
+
   const authScreen = document.getElementById('auth-screen');
   const appScreen = document.getElementById('app-screen');
 
@@ -163,20 +161,27 @@ async function handleAuthStateChange(user) {
     try {
       const doc = await db.collection('users').doc(user.uid).get();
 
-      if (doc.exists && doc.data().username) {
-        // User data exists with username
-        currentUserData = doc.data();
+      if (doc.exists) {
+        const data = doc.data();
+        // FIX: Check both 'username' and 'name' fields
+        currentUserData = {
+          username: data.username || data.name || user.email.split('@')[0],
+          name: data.name || data.username || user.email.split('@')[0],
+          email: data.email || user.email,
+          role: data.role || 'member',
+          online: data.online !== undefined ? data.online : true
+        };
+        console.log('✅ User data loaded:', currentUserData);
       } else {
-        // Username missing - create/update document
         const fallbackUsername = user.email ? user.email.split('@')[0] : 'User';
         currentUserData = {
           username: fallbackUsername,
+          name: fallbackUsername,
           email: user.email || ''
         };
-
-        console.log('⚠️ Username missing, creating document...');
         await db.collection('users').doc(user.uid).set({
           username: fallbackUsername,
+          name: fallbackUsername,
           email: user.email,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           online: true,
@@ -184,7 +189,7 @@ async function handleAuthStateChange(user) {
         }, { merge: true });
       }
 
-      // Update UI safely
+      // Update UI
       const myUsernameEl = document.getElementById('my-username');
       const myAvatarEl = document.getElementById('my-avatar');
 
@@ -194,29 +199,50 @@ async function handleAuthStateChange(user) {
         myAvatarEl.textContent = firstChar;
       }
 
-      // Switch screens
-      if (authScreen) authScreen.classList.remove('active');
-      if (appScreen) appScreen.classList.add('active');
+      // FORCE SCREEN SWITCH with inline styles (works even if CSS fails)
+      console.log('🔄 Switching to app screen...');
+      if (authScreen) {
+        authScreen.classList.remove('active');
+        authScreen.style.display = 'none';
+      }
+      if (appScreen) {
+        appScreen.classList.add('active');
+        appScreen.style.display = 'flex';
+      }
+      console.log('✅ Screen switched!');
 
       // Load chats & groups
-      if (typeof loadChats === 'function') loadChats();
-      if (typeof loadGroups === 'function') loadGroups();
+      setTimeout(() => {
+        if (typeof loadChats === 'function') {
+          console.log('📱 Loading chats...');
+          loadChats();
+        }
+        if (typeof loadGroups === 'function') {
+          console.log('👥 Loading groups...');
+          loadGroups();
+        }
+      }, 200);
 
     } catch (err) {
       console.error('❌ Error loading user data:', err);
     }
 
   } else {
-    console.log('👋 User logged out');
+    console.log(' User logged out');
     currentUser = null;
     currentUserData = null;
 
-    if (authScreen) authScreen.classList.add('active');
-    if (appScreen) appScreen.classList.remove('active');
+    if (authScreen) {
+      authScreen.classList.add('active');
+      authScreen.style.display = 'flex';
+    }
+    if (appScreen) {
+      appScreen.classList.remove('active');
+      appScreen.style.display = 'none';
+    }
   }
 }
 
-// ---- ERROR MESSAGES ----
 function getErrorMessage(code) {
   const messages = {
     'auth/user-not-found': 'Yeh email registered nahi hai. Pehle Register karo!',
