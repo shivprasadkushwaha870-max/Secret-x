@@ -4,9 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Secret-x | Private Chat</title>
+  
+  <!-- PWA & SEO Meta Tags (PWABuilder ke liye zaroori) -->
+  <meta name="description" content="Private. Secure. Yours. - Encrypted chat application" />
+  <meta name="theme-color" content="#7c3aed" />
+  <link rel="manifest" href="./manifest.json" />
+  
+  <!-- App Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/images/icon-192.png" />
+  <link rel="apple-touch-icon" href="./assets/images/icon-192.png" />
+  
+  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css" />
+  
+  <!-- Critical Inline CSS (Screen switch fix) -->
   <style>
-    /* CRITICAL: Force screen visibility even if CSS fails */
     #auth-screen.active { display: flex !important; }
     #app-screen.active { display: flex !important; }
     #auth-screen:not(.active) { display: none !important; }
@@ -14,6 +26,8 @@
     .hidden { display: none !important; }
     .screen { display: none; }
   </style>
+  
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -164,5 +178,17 @@
   <script src="js/auth.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/groups.js"></script>
+  <script>
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then((registration) => {
+        console.log('✅ Service Worker registered:', registration.scope);
+      })
+      .catch((error) => {
+        console.log('❌ Service Worker registration failed:', error);
+      });
+  }
+</script>
 </body>
 </html>
