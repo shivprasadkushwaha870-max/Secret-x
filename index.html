@@ -155,6 +155,7 @@
         .user-details {
             color: #888;
             font-size: 11px;
+            margin-bottom: 10px;
         }
 
         .user-details .role-badge {
@@ -434,7 +435,6 @@
             transform: scale(1.05);
         }
 
-        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -498,35 +498,15 @@
             transition: all 0.3s;
         }
 
-        .btn-primary {
-            background: #00ff88;
-            color: #000;
-        }
+        .btn-primary { background: #00ff88; color: #000; }
+        .btn-secondary { background: #333; color: #fff; }
+        .btn-danger { background: #ff4444; color: #fff; }
+        .btn-success { background: #00ff88; color: #000; }
 
-        .btn-secondary {
-            background: #333;
-            color: #fff;
-        }
-
-        .btn-danger {
-            background: #ff4444;
-            color: #fff;
-        }
-
-        .btn-success {
-            background: #00ff88;
-            color: #000;
-        }
-
-        /* Notification Bell */
         .notification-bell {
             position: relative;
             cursor: pointer;
             padding: 5px;
-        }
-
-        .notification-bell::before {
-            content: '';
             font-size: 20px;
         }
 
@@ -546,7 +526,6 @@
             font-weight: bold;
         }
 
-        /* Notification Panel */
         .notification-panel {
             position: fixed;
             top: 0;
@@ -617,7 +596,6 @@
             margin-top: 5px;
         }
 
-        /* Group Search Results */
         .search-result {
             padding: 12px;
             background: #0a0a0a;
@@ -656,7 +634,6 @@
             cursor: not-allowed;
         }
 
-        /* Request Item */
         .request-item {
             padding: 12px;
             background: #0a0a0a;
@@ -682,7 +659,6 @@
             font-weight: bold;
         }
 
-        /* Members List */
         .member-item {
             padding: 10px;
             background: #0a0a0a;
@@ -703,38 +679,14 @@
             font-size: 11px;
         }
 
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
+        .error-msg { color: #ff4444; font-size: 12px; margin-top: 10px; }
+        .success-msg { color: #00ff88; font-size: 12px; margin-top: 10px; }
 
-        .error-msg {
-            color: #ff4444;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-
-        .success-msg {
-            color: #00ff88;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00ff88;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00ff88; }
 
         .empty-state {
             text-align: center;
@@ -774,13 +726,12 @@
 
     <!-- Main App -->
     <div class="app-container hidden" id="appContainer">
-        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <div class="user-info-bar">
                     <h3>🔐 Secret X</h3>
                     <div class="notification-bell" onclick="toggleNotifications()">
-                        <span class="notification-count hidden" id="notifCount">0</span>
+                        🔔<span class="notification-count hidden" id="notifCount">0</span>
                     </div>
                 </div>
                 <div class="user-details">
@@ -788,22 +739,19 @@
                     <div class="role-badge" id="userRole"></div>
                 </div>
                 <div class="sidebar-actions">
-                    <button class="action-btn active" onclick="showSection('chats')">💬 Chats</button>
-                    <button class="action-btn" onclick="showSection('groups')">🔍 Groups</button>
-                    <button class="action-btn" onclick="showCreateGroup()"> New</button>
+                    <button class="action-btn active" id="btnChats" onclick="showSection('chats')">💬 Chats</button>
+                    <button class="action-btn" id="btnGroups" onclick="showSection('groups')">🔍 Groups</button>
+                    <button class="action-btn" id="btnNew" onclick="showCreateGroup()"> New</button>
                 </div>
             </div>
 
-            <!-- Search Box -->
             <div class="search-box hidden" id="searchBox">
                 <input type="text" id="groupSearch" placeholder="Search groups..." oninput="searchGroups()">
             </div>
 
-            <!-- Chat List -->
             <div class="chat-list" id="chatList"></div>
         </div>
 
-        <!-- Chat Area -->
         <div class="chat-area">
             <div class="chat-header">
                 <div class="chat-avatar" id="chatAvatar">?</div>
@@ -863,7 +811,7 @@
     <!-- Admin Requests Modal -->
     <div class="modal-overlay hidden" id="adminRequestsModal">
         <div class="modal">
-            <h3>📋 Join Requests</h3>
+            <h3> Join Requests</h3>
             <div id="requestsList"></div>
             <div class="modal-buttons">
                 <button class="btn-secondary" onclick="closeModal('adminRequestsModal')">Close</button>
@@ -871,13 +819,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyCX9myU2sx-LCyGAUsKuVEOJJXo7jhurdg",
             authDomain: "secret-x-c3045.firebaseapp.com",
@@ -900,7 +846,6 @@
         let notifications = [];
         let messagesListener = null;
 
-        // Auth Toggle
         function toggleAuth() {
             document.getElementById('loginForm').classList.toggle('hidden');
             document.getElementById('registerForm').classList.toggle('hidden');
@@ -913,7 +858,6 @@
             document.getElementById('regSuccess').textContent = '';
         }
 
-        // Register
         async function register() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
@@ -949,7 +893,6 @@
             }
         }
 
-        // Login
         async function login() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -961,7 +904,6 @@
             }
         }
 
-        // Auth State
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
@@ -986,26 +928,28 @@
             }
         });
 
-        // Load My Groups
         async function loadMyGroups() {
-            const groupsRef = db.collection('groups');
-            const query1 = groupsRef.where('members', 'array-contains', currentUser.uid);
-            const query2 = groupsRef.where('admin', '==', currentUser.uid);
+            try {
+                const groupsRef = db.collection('groups');
+                const query1 = groupsRef.where('members', 'array-contains', currentUser.uid);
+                const query2 = groupsRef.where('admin', '==', currentUser.uid);
 
-            const [snap1, snap2] = await Promise.all([query1.get(), query2.get()]);
-            
-            const groupsMap = new Map();
-            snap1.forEach(doc => groupsMap.set(doc.id, doc.data()));
-            snap2.forEach(doc => groupsMap.set(doc.id, doc.data()));
+                const [snap1, snap2] = await Promise.all([query1.get(), query2.get()]);
+                
+                const groupsMap = new Map();
+                snap1.forEach(doc => groupsMap.set(doc.id, doc.data()));
+                snap2.forEach(doc => groupsMap.set(doc.id, doc.data()));
 
-            myGroups = Array.from(groupsMap.entries()).map(([id, data]) => ({ id, ...data }));
-            
-            if (currentSection === 'chats') {
-                renderChats();
+                myGroups = Array.from(groupsMap.entries()).map(([id, data]) => ({ id, ...data }));
+                
+                if (currentSection === 'chats') {
+                    renderChats();
+                }
+            } catch (error) {
+                console.error('Error loading groups:', error);
             }
         }
 
-        // Render Chats
         function renderChats() {
             const chatList = document.getElementById('chatList');
             chatList.innerHTML = '';
@@ -1024,7 +968,7 @@
             myGroups.forEach(group => {
                 const div = document.createElement('div');
                 div.className = 'chat-item';
-                div.onclick = (e) => openChat(group, e.currentTarget);
+                div.onclick = () => openChat(group, div);
                 
                 const unread = unreadMessages[group.id] || 0;
                 
@@ -1040,87 +984,94 @@
             });
         }
 
-        // Show Section
         function showSection(section) {
             currentSection = section;
-            document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
+            
+            // Reset all buttons
+            document.getElementById('btnChats').classList.remove('active');
+            document.getElementById('btnGroups').classList.remove('active');
+            
             if (section === 'chats') {
+                document.getElementById('btnChats').classList.add('active');
                 document.getElementById('searchBox').classList.add('hidden');
                 renderChats();
             } else if (section === 'groups') {
+                document.getElementById('btnGroups').classList.add('active');
                 document.getElementById('searchBox').classList.remove('hidden');
                 searchGroups();
             }
         }
 
-        // Search Groups
         async function searchGroups() {
-            const query = document.getElementById('groupSearch').value.toLowerCase();
+            const query = document.getElementById('groupSearch').value.toLowerCase().trim();
             const chatList = document.getElementById('chatList');
             chatList.innerHTML = '';
 
-            let groupsQuery = db.collection('groups');
-            if (query) {
-                groupsQuery = groupsQuery.where('nameLower', '>=', query).where('nameLower', '<=', query + '\uf8ff');
-            }
-
-            const snapshot = await groupsQuery.get();
-            
-            if (snapshot.empty) {
-                chatList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">🔍</div>
-                        <p>Koi group nahi mila</p>
-                    </div>
-                `;
-                return;
-            }
-
-            snapshot.forEach(doc => {
-                const group = doc.data();
-                const isMember = group.members?.includes(currentUser.uid);
-                const isPending = group.pendingRequests?.includes(currentUser.uid);
-                const isAdmin = group.admin === currentUser.uid;
-
-                const div = document.createElement('div');
-                div.className = 'search-result';
-                
-                let buttonHtml = '';
-                if (isAdmin) {
-                    buttonHtml = '<button class="join-btn" disabled>Admin</button>';
-                } else if (isMember) {
-                    buttonHtml = '<button class="join-btn" disabled>Joined</button>';
-                } else if (isPending) {
-                    buttonHtml = '<button class="join-btn" disabled>Pending</button>';
+            try {
+                let snapshot;
+                if (query) {
+                    snapshot = await db.collection('groups')
+                        .where('nameLower', '>=', query)
+                        .where('nameLower', '<=', query + '\uf8ff')
+                        .get();
                 } else {
-                    buttonHtml = `<button class="join-btn" onclick="requestJoin('${doc.id}')">Join Request</button>`;
+                    snapshot = await db.collection('groups').get();
+                }
+                
+                if (snapshot.empty) {
+                    chatList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">🔍</div>
+                            <p>Koi group nahi mila</p>
+                        </div>
+                    `;
+                    return;
                 }
 
-                div.innerHTML = `
-                    <div class="search-result-info">
-                        <h4>${group.name}</h4>
-                        <p>${group.description || 'No description'} • ${group.members?.length || 0} members</p>
-                    </div>
-                    ${buttonHtml}
-                `;
-                chatList.appendChild(div);
-            });
+                snapshot.forEach(doc => {
+                    const group = doc.data();
+                    const isMember = group.members?.includes(currentUser.uid);
+                    const isPending = group.pendingRequests?.includes(currentUser.uid);
+                    const isAdmin = group.admin === currentUser.uid;
+
+                    const div = document.createElement('div');
+                    div.className = 'search-result';
+                    
+                    let buttonHtml = '';
+                    if (isAdmin) {
+                        buttonHtml = '<button class="join-btn" disabled>Admin</button>';
+                    } else if (isMember) {
+                        buttonHtml = '<button class="join-btn" disabled>Joined</button>';
+                    } else if (isPending) {
+                        buttonHtml = '<button class="join-btn" disabled>Pending</button>';
+                    } else {
+                        buttonHtml = `<button class="join-btn" onclick="requestJoin('${doc.id}')">Join Request</button>`;
+                    }
+
+                    div.innerHTML = `
+                        <div class="search-result-info">
+                            <h4>${group.name}</h4>
+                            <p>${group.description || 'No description'} • ${group.members?.length || 0} members</p>
+                        </div>
+                        ${buttonHtml}
+                    `;
+                    chatList.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Search error:', error);
+                chatList.innerHTML = `<div class="empty-state"><p>Error: ${error.message}</p></div>`;
+            }
         }
 
-        // Request Join
         async function requestJoin(groupId) {
             try {
                 await db.collection('groups').doc(groupId).update({
                     pendingRequests: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
                 });
 
-                // Get group info for notification
                 const groupDoc = await db.collection('groups').doc(groupId).get();
                 const group = groupDoc.data();
 
-                // Create notification for admin
                 await db.collection('notifications').add({
                     userId: group.admin,
                     type: 'join_request',
@@ -1139,7 +1090,6 @@
             }
         }
 
-        // Create Group
         function showCreateGroup() {
             document.getElementById('createGroupModal').classList.remove('hidden');
         }
@@ -1170,14 +1120,11 @@
                 
                 await loadMyGroups();
                 showSection('chats');
-                document.querySelectorAll('.action-btn')[0].classList.add('active');
-                document.querySelectorAll('.action-btn')[2].classList.remove('active');
             } catch (error) {
                 alert('Error: ' + error.message);
             }
         }
 
-        // Open Chat
         function openChat(group, element) {
             currentChat = group;
             document.getElementById('chatTitle').textContent = group.name;
@@ -1190,22 +1137,19 @@
                 element.classList.add('active');
             }
 
-            // Header actions
             const headerActions = document.getElementById('headerActions');
+            const isGroupAdmin = group.admin === currentUser.uid;
             headerActions.innerHTML = `
                 <button class="header-btn" onclick="showGroupInfo()">👥 Info</button>
-                ${currentRole === 'admin' || group.admin === currentUser.uid ? 
-                    `<button class="header-btn" onclick="showAdminRequests()">📋 Requests</button>` : ''}
+                ${isGroupAdmin ? `<button class="header-btn" onclick="showAdminRequests()">📋 Requests</button>` : ''}
             `;
 
-            // Clear unread
             unreadMessages[group.id] = 0;
             renderChats();
 
             loadMessages(group.id);
         }
 
-        // Load Messages
         function loadMessages(groupId) {
             if (messagesListener) {
                 messagesListener();
@@ -1236,10 +1180,11 @@
                         messagesDiv.appendChild(div);
                     });
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }, error => {
+                    console.error('Messages error:', error);
                 });
         }
 
-        // Send Message
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
@@ -1261,48 +1206,48 @@
             }
         }
 
-        // Show Group Info
         async function showGroupInfo() {
             if (!currentChat) return;
 
-            const groupDoc = await db.collection('groups').doc(currentChat.id).get();
-            const group = groupDoc.data();
+            try {
+                const groupDoc = await db.collection('groups').doc(currentChat.id).get();
+                const group = groupDoc.data();
 
-            const membersList = document.getElementById('groupMembersList');
-            membersList.innerHTML = '';
+                const membersList = document.getElementById('groupMembersList');
+                membersList.innerHTML = '';
 
-            // Fetch all members info
-            const memberIds = group.members || [];
-            for (const memberId of memberIds) {
-                const userDoc = await db.collection('users').doc(memberId).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    const isAdmin = group.admin === memberId;
-                    
-                    const div = document.createElement('div');
-                    div.className = 'member-item';
-                    div.innerHTML = `
-                        <div>
-                            <div class="member-name">${userData.name} ${isAdmin ? '👑' : ''}</div>
-                            <div class="member-role">${isAdmin ? 'Admin' : 'Member'}</div>
-                        </div>
-                    `;
-                    membersList.appendChild(div);
+                const memberIds = group.members || [];
+                for (const memberId of memberIds) {
+                    const userDoc = await db.collection('users').doc(memberId).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        const isAdmin = group.admin === memberId;
+                        
+                        const div = document.createElement('div');
+                        div.className = 'member-item';
+                        div.innerHTML = `
+                            <div>
+                                <div class="member-name">${userData.name} ${isAdmin ? '👑' : ''}</div>
+                                <div class="member-role">${isAdmin ? 'Admin' : 'Member'}</div>
+                            </div>
+                        `;
+                        membersList.appendChild(div);
+                    }
                 }
-            }
 
-            // Show/hide leave button
-            const leaveBtn = document.getElementById('leaveGroupBtn');
-            if (group.admin === currentUser.uid) {
-                leaveBtn.classList.add('hidden');
-            } else {
-                leaveBtn.classList.remove('hidden');
-            }
+                const leaveBtn = document.getElementById('leaveGroupBtn');
+                if (group.admin === currentUser.uid) {
+                    leaveBtn.classList.add('hidden');
+                } else {
+                    leaveBtn.classList.remove('hidden');
+                }
 
-            document.getElementById('groupInfoModal').classList.remove('hidden');
+                document.getElementById('groupInfoModal').classList.remove('hidden');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
         }
 
-        // Leave Group
         async function leaveGroup() {
             if (!currentChat) return;
 
@@ -1313,7 +1258,6 @@
                     members: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
                 });
 
-                // Add system message
                 await db.collection('groups').doc(currentChat.id).collection('messages').add({
                     text: `${document.getElementById('userName').textContent} left the group`,
                     type: 'system',
@@ -1337,46 +1281,48 @@
             }
         }
 
-        // Show Admin Requests
         async function showAdminRequests() {
             if (!currentChat) return;
 
-            const groupDoc = await db.collection('groups').doc(currentChat.id).get();
-            const group = groupDoc.data();
+            try {
+                const groupDoc = await db.collection('groups').doc(currentChat.id).get();
+                const group = groupDoc.data();
 
-            const requestsList = document.getElementById('requestsList');
-            requestsList.innerHTML = '';
+                const requestsList = document.getElementById('requestsList');
+                requestsList.innerHTML = '';
 
-            const pendingRequests = group.pendingRequests || [];
+                const pendingRequests = group.pendingRequests || [];
 
-            if (pendingRequests.length === 0) {
-                requestsList.innerHTML = '<div class="empty-state"><p>Koi pending request nahi hai</p></div>';
-            } else {
-                for (const requesterId of pendingRequests) {
-                    const userDoc = await db.collection('users').doc(requesterId).get();
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
-                        const div = document.createElement('div');
-                        div.className = 'request-item';
-                        div.innerHTML = `
-                            <div>
-                                <div class="member-name">${userData.name}</div>
-                                <div class="member-role">${userData.email}</div>
-                            </div>
-                            <div class="request-actions">
-                                <button class="btn-success" onclick="acceptRequest('${currentChat.id}', '${requesterId}')">Accept</button>
-                                <button class="btn-danger" onclick="rejectRequest('${currentChat.id}', '${requesterId}')">Reject</button>
-                            </div>
-                        `;
-                        requestsList.appendChild(div);
+                if (pendingRequests.length === 0) {
+                    requestsList.innerHTML = '<div class="empty-state"><p>Koi pending request nahi hai</p></div>';
+                } else {
+                    for (const requesterId of pendingRequests) {
+                        const userDoc = await db.collection('users').doc(requesterId).get();
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            const div = document.createElement('div');
+                            div.className = 'request-item';
+                            div.innerHTML = `
+                                <div>
+                                    <div class="member-name">${userData.name}</div>
+                                    <div class="member-role">${userData.email}</div>
+                                </div>
+                                <div class="request-actions">
+                                    <button class="btn-success" onclick="acceptRequest('${currentChat.id}', '${requesterId}')">Accept</button>
+                                    <button class="btn-danger" onclick="rejectRequest('${currentChat.id}', '${requesterId}')">Reject</button>
+                                </div>
+                            `;
+                            requestsList.appendChild(div);
+                        }
                     }
                 }
-            }
 
-            document.getElementById('adminRequestsModal').classList.remove('hidden');
+                document.getElementById('adminRequestsModal').classList.remove('hidden');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
         }
 
-        // Accept Request
         async function acceptRequest(groupId, requesterId) {
             try {
                 await db.collection('groups').doc(groupId).update({
@@ -1384,7 +1330,6 @@
                     pendingRequests: firebase.firestore.FieldValue.arrayRemove(requesterId)
                 });
 
-                // Add system message
                 const requesterDoc = await db.collection('users').doc(requesterId).get();
                 await db.collection('groups').doc(groupId).collection('messages').add({
                     text: `${requesterDoc.data().name} joined the group`,
@@ -1392,7 +1337,6 @@
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Send notification to requester
                 await db.collection('notifications').add({
                     userId: requesterId,
                     type: 'request_accepted',
@@ -1410,14 +1354,12 @@
             }
         }
 
-        // Reject Request
         async function rejectRequest(groupId, requesterId) {
             try {
                 await db.collection('groups').doc(groupId).update({
                     pendingRequests: firebase.firestore.FieldValue.arrayRemove(requesterId)
                 });
 
-                // Send notification to requester
                 await db.collection('notifications').add({
                     userId: requesterId,
                     type: 'request_rejected',
@@ -1434,7 +1376,6 @@
             }
         }
 
-        // Load Notifications
         function loadNotifications() {
             db.collection('notifications')
                 .where('userId', '==', currentUser.uid)
@@ -1449,7 +1390,6 @@
                         if (!notif.read) unreadCount++;
                     });
 
-                    // Update badge
                     const badge = document.getElementById('notifCount');
                     if (unreadCount > 0) {
                         badge.textContent = unreadCount;
@@ -1459,10 +1399,11 @@
                     }
 
                     renderNotifications();
+                }, error => {
+                    console.error('Notifications error:', error);
                 });
         }
 
-        // Render Notifications
         function renderNotifications() {
             const list = document.getElementById('notificationList');
             list.innerHTML = '';
@@ -1485,22 +1426,13 @@
             });
         }
 
-        // Handle Notification Click
         async function handleNotification(notif) {
-            // Mark as read
             await db.collection('notifications').doc(notif.id).update({ read: true });
 
             if (notif.groupId) {
                 const groupDoc = await db.collection('groups').doc(notif.groupId).get();
                 if (groupDoc.exists) {
                     const group = { id: notif.groupId, ...groupDoc.data() };
-                    // Find and click the chat item
-                    const chatItems = document.querySelectorAll('.chat-item');
-                    chatItems.forEach(item => {
-                        if (item.onclick) {
-                            // Trigger open chat
-                        }
-                    });
                     openChat(group);
                 }
             }
@@ -1508,24 +1440,20 @@
             toggleNotifications();
         }
 
-        // Toggle Notifications Panel
         function toggleNotifications() {
             document.getElementById('notificationPanel').classList.toggle('open');
         }
 
-        // Close Modal
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
 
-        // Enter key to send
         document.getElementById('messageInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
 
-        // Close modals on outside click
         document.querySelectorAll('.modal-overlay').forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
