@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Secret-x | Private Chat</title>
   <link rel="stylesheet" href="css/style.css" />
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-  <!-- ==================== AUTH SCREEN ==================== -->
+  <!-- AUTH SCREEN -->
   <div id="auth-screen" class="screen active">
     <div class="auth-container">
       <div class="auth-logo">
@@ -21,7 +20,6 @@
         <p class="tagline">Private. Secure. Yours.</p>
       </div>
 
-      <!-- Login Form -->
       <form id="login-form" class="auth-form active">
         <h2>Login</h2>
         <div class="input-group">
@@ -35,7 +33,6 @@
         <p id="login-error" class="error-msg"></p>
       </form>
 
-      <!-- Register Form -->
       <form id="register-form" class="auth-form">
         <h2>Register</h2>
         <div class="input-group">
@@ -54,64 +51,56 @@
     </div>
   </div>
 
-  <!-- ==================== MAIN APP SCREEN ==================== -->
+  <!-- MAIN APP SCREEN -->
   <div id="app-screen" class="screen">
-
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <h2>🔒 Secret-x</h2>
         <div class="sidebar-actions">
+          <button id="btn-notifications" class="icon-btn" title="Notifications">
+            🔔<span id="notif-badge" class="notif-badge hidden">0</span>
+          </button>
           <button id="btn-new-group" class="icon-btn" title="New Group">👥</button>
-          <button id="btn-logout" class="icon-btn" title="Logout">🚪</button>
+          <button id="btn-logout" class="icon-btn" title="Logout"></button>
         </div>
       </div>
 
-      <!-- User Info -->
       <div class="user-info">
         <div class="avatar" id="my-avatar">U</div>
         <span id="my-username">User</span>
         <span class="status-dot online"></span>
       </div>
 
-      <!-- Search -->
       <div class="search-box">
-        <input type="text" id="search-input" placeholder="🔍 Search chats..." />
+        <input type="text" id="search-input" placeholder=" Search chats..." />
       </div>
 
-      <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" data-tab="chats">💬 Chats</button>
         <button class="tab" data-tab="groups">👥 Groups</button>
       </div>
 
-      <!-- Chat List -->
       <div id="chat-list" class="chat-list active-tab-content">
         <p class="empty-msg">Koi chat nahi hai. Neeche se start karo!</p>
       </div>
 
-      <!-- Group List -->
       <div id="group-list" class="chat-list tab-content">
         <p class="empty-msg">Koi group nahi hai. Upar 👥 dabao!</p>
       </div>
 
-      <!-- New Chat -->
       <div class="new-chat-area">
         <input type="email" id="new-chat-email" placeholder="Email se user dhundo..." />
         <button id="btn-start-chat" class="btn btn-small">Start Chat</button>
       </div>
     </aside>
 
-    <!-- Chat Area -->
     <main class="chat-area">
-      <!-- No Chat Selected -->
       <div id="no-chat" class="no-chat">
         <span class="big-icon">💬</span>
         <h2>Secret-x mein welcome!</h2>
         <p>Left side se chat ya group select karo</p>
       </div>
 
-      <!-- Active Chat -->
       <div id="active-chat" class="active-chat hidden">
         <div class="chat-header">
           <button id="btn-back" class="icon-btn mobile-only">⬅️</button>
@@ -120,10 +109,10 @@
             <h3 id="chat-name">Chat Name</h3>
             <span id="chat-status" class="chat-status">Online</span>
           </div>
+          <!-- Settings button will be added here dynamically -->
         </div>
 
         <div id="messages-container" class="messages-container">
-          <!-- Messages will load here -->
         </div>
 
         <div class="message-input-area">
@@ -134,7 +123,19 @@
     </main>
   </div>
 
-  <!-- ==================== MODALS ==================== -->
+  <!-- Notifications Modal -->
+  <div id="notif-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>🔔 Notifications</h3>
+      <div id="notif-list">
+        <p class="empty-msg">Koi notification nahi hai</p>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-close-notif" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- New Group Modal -->
   <div id="group-modal" class="modal hidden">
     <div class="modal-content">
@@ -152,7 +153,6 @@
     </div>
   </div>
 
-  <!-- Scripts -->
   <script src="js/firebase.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/chat.js"></script>
