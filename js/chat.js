@@ -1,12 +1,11 @@
 // ============================================
-// 💬 CHAT MODULE
+//  CHAT MODULE (FIXED)
 // ============================================
 
 let activeChatId = null;
-let activeChatType = 'direct'; // 'direct' or 'group'
+let activeChatType = 'direct';
 let unsubscribeMessages = null;
 
-// DOM Elements
 const chatListEl = document.getElementById('chat-list');
 const noChatEl = document.getElementById('no-chat');
 const activeChatEl = document.getElementById('active-chat');
@@ -32,10 +31,13 @@ document.querySelectorAll('.tab').forEach(tab => {
 // ---- Start New Chat ----
 document.getElementById('btn-start-chat').addEventListener('click', async () => {
   const email = document.getElementById('new-chat-email').value.trim();
-  if (!email) return;
+  if (!email) {
+    alert('Email daalo pehle!');
+    return;
+  }
 
   if (email === currentUserData.email) {
-    alert('Khud se chat nahi kar sakte bhai! 😄');
+    alert('Khud se chat nahi kar sakte bhai! ');
     return;
   }
 
@@ -44,18 +46,19 @@ document.getElementById('btn-start-chat').addEventListener('click', async () => 
     const usersSnap = await db.collection('users').where('email', '==', email).get();
 
     if (usersSnap.empty) {
-      alert('Yeh email Secret-x pe registered nahi hai!');
+      alert('Yeh email Secret-x pe registered nahi hai!\n\nPehle usse register karne bolo.');
       return;
     }
 
     const otherUser = usersSnap.docs[0];
     const otherUserId = otherUser.id;
     const otherUserData = otherUser.data();
+    
+    // Safe username (fallback)
+    const otherUsername = (otherUserData.username || otherUserData.email || email.split('@')[0]);
 
-    // Create or get chat ID (sorted IDs for consistency)
     const chatId = getChatId(currentUser.uid, otherUserId);
 
-    // Check if chat already exists
     const chatDoc = await db.collection('chats').doc(chatId).get();
 
     if (!chatDoc.exists) {
@@ -63,26 +66,27 @@ document.getElementById('btn-start-chat').addEventListener('click', async () => 
         participants: [currentUser.uid, otherUserId],
         participantData: {
           [currentUser.uid]: {
-            username: currentUserData.username,
-            email: currentUserData.email
+            username: currentUserData.username || 'User',
+            email: currentUserData.email || ''
           },
           [otherUserId]: {
-            username: otherUserData.username,
-            email: otherUserData.email
+            username: otherUsername,
+            email: otherUserData.email || email
           }
         },
         lastMessage: '',
         lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+      console.log('✅ Chat created:', chatId);
     }
 
     document.getElementById('new-chat-email').value = '';
-    openChat(chatId, 'direct', otherUserData.username);
+    openChat(chatId, 'direct', otherUsername);
 
   } catch (err) {
-    console.error('Start chat error:', err);
-    alert('Chat start nahi ho paya. Try again!');
+    console.error(' Start chat error:', err);
+    alert('Chat start nahi ho paya: ' + err.message);
   }
 });
 
@@ -91,32 +95,42 @@ function getChatId(uid1, uid2) {
   return [uid1, uid2].sort().join('_');
 }
 
-// ---- Load Chats ----
+// ---- Load Chats (FIXED - No orderBy) ----
 function loadChats() {
   if (!currentUser) return;
 
   db.collection('chats')
     .where('participants', 'array-contains', currentUser.uid)
-    .orderBy('lastMessageTime', 'desc')
     .onSnapshot((snapshot) => {
       chatListEl.innerHTML = '';
 
       if (snapshot.empty) {
-        chatListEl.innerHTML = '<p class="empty-msg">Koi chat nahi hai. Neeche se start karo!</p>';
+        chatListEl.innerHTML = '<p class="empty-msg">Koi chat nahi hai. Neeche email daalke start karo!</p>';
         return;
       }
 
+      // Sort client-side
+      const chats = [];
       snapshot.forEach(doc => {
-        const chat = doc.data();
+        chats.push({ id: doc.id, data: doc.data() });
+      });
+      
+      chats.sort((a, b) => {
+        const timeA = a.data.lastMessageTime ? a.data.lastMessageTime.toMillis() : 0;
+        const timeB = b.data.lastMessageTime ? b.data.lastMessageTime.toMillis() : 0;
+        return timeB - timeA;
+      });
+
+      chats.forEach(({ id: docId, data: chat }) => {
         const otherUserId = chat.participants.find(p => p !== currentUser.uid);
-        const otherUser = chat.participantData[otherUserId];
-        const name = otherUser ? otherUser.username : 'Unknown';
+        const otherUser = chat.participantData ? chat.participantData[otherUserId] : null;
+        const name = (otherUser && otherUser.username) ? otherUser.username : 'Unknown';
         const initial = name.charAt(0).toUpperCase();
-        const lastMsg = chat.lastMessage || 'Naya chat';
+        const lastMsg = chat.lastMessage || 'Naya chat shuru karo';
         const time = chat.lastMessageTime ? formatTime(chat.lastMessageTime.toDate()) : '';
 
         const item = document.createElement('div');
-        item.className = `chat-item ${activeChatId === doc.id ? 'active' : ''}`;
+        item.className = `chat-item ${activeChatId === docId ? 'active' : ''}`;
         item.innerHTML = `
           <div class="avatar">${initial}</div>
           <div class="chat-item-info">
@@ -125,7 +139,7 @@ function loadChats() {
           </div>
           <span class="chat-item-time">${time}</span>
         `;
-        item.addEventListener('click', () => openChat(doc.id, 'direct', name));
+        item.addEventListener('click', () => openChat(docId, 'direct', name));
         chatListEl.appendChild(item);
       });
     });
@@ -136,23 +150,20 @@ function openChat(chatId, type, name) {
   activeChatId = chatId;
   activeChatType = type;
 
-  // UI
   noChatEl.classList.add('hidden');
   activeChatEl.classList.remove('hidden');
   chatNameEl.textContent = name;
   chatAvatarEl.textContent = name.charAt(0).toUpperCase();
   chatStatusEl.textContent = type === 'direct' ? 'Online' : 'Group';
 
-  // Mobile
   document.getElementById('app-screen').classList.add('chat-open');
 
-  // Unsubscribe previous
   if (unsubscribeMessages) unsubscribeMessages();
 
-  // Load messages
   messagesContainer.innerHTML = '<div class="spinner"></div>';
 
   const collection = type === 'direct' ? 'chats' : 'groups';
+  
   unsubscribeMessages = db.collection(collection).doc(chatId).collection('messages')
     .orderBy('timestamp', 'asc')
     .onSnapshot((snapshot) => {
@@ -171,7 +182,7 @@ function openChat(chatId, type, name) {
 
         let senderHtml = '';
         if (type === 'group' && !isSent) {
-          senderHtml = `<div class="msg-sender">${escapeHtml(msg.senderName)}</div>`;
+          senderHtml = `<div class="msg-sender">${escapeHtml(msg.senderName || 'Unknown')}</div>`;
         }
 
         div.innerHTML = `
@@ -182,11 +193,12 @@ function openChat(chatId, type, name) {
         messagesContainer.appendChild(div);
       });
 
-      // Scroll to bottom
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, (err) => {
+      console.error('Messages load error:', err);
+      messagesContainer.innerHTML = '<p class="empty-msg">Messages load nahi ho rahe</p>';
     });
 
-  // Highlight active in list
   document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 }
 
@@ -200,23 +212,22 @@ async function sendMessage() {
   const messageData = {
     text: text,
     senderId: currentUser.uid,
-    senderName: currentUserData.username,
+    senderName: currentUserData.username || 'User',
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   };
 
   const collection = activeChatType === 'direct' ? 'chats' : 'groups';
 
   try {
-    // Add message
     await db.collection(collection).doc(activeChatId).collection('messages').add(messageData);
 
-    // Update last message in chat/group doc
     await db.collection(collection).doc(activeChatId).update({
       lastMessage: text,
       lastMessageTime: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (err) {
-    console.error('Send message error:', err);
+    console.error('Send error:', err);
+    messageInput.value = text; // Restore message on error
   }
 }
 
@@ -225,7 +236,7 @@ messageInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendMessage();
 });
 
-// ---- Mobile Back Button ----
+// ---- Mobile Back ----
 document.getElementById('btn-back').addEventListener('click', () => {
   document.getElementById('app-screen').classList.remove('chat-open');
   activeChatId = null;
@@ -253,11 +264,11 @@ function formatTime(date) {
   if (mins < 60) return `${mins}m`;
   if (hours < 24) return `${hours}h`;
   if (days < 7) return `${days}d`;
-
   return date.toLocaleDateString('hi-IN', { day: 'numeric', month: 'short' });
 }
 
 function escapeHtml(text) {
+  if (!text) return '';
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
