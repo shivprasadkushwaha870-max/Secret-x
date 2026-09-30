@@ -135,22 +135,80 @@
         }
 
         .sidebar-header {
-            padding: 20px;
+            padding: 15px;
             background: #0a0a0a;
             border-bottom: 1px solid #222;
+        }
+
+        .user-info-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 10px;
         }
 
-        .sidebar-header h3 {
+        .user-info-bar h3 {
             color: #00ff88;
-            font-size: 20px;
+            font-size: 18px;
         }
 
-        .user-info {
+        .user-details {
             color: #888;
-            font-size: 12px;
+            font-size: 11px;
+        }
+
+        .user-details .role-badge {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #00ff88;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .action-btn.active {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .search-box {
+            padding: 10px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #222;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #00ff88;
         }
 
         .chat-list {
@@ -160,14 +218,15 @@
         }
 
         .chat-item {
-            padding: 15px;
+            padding: 12px;
             border-radius: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            position: relative;
         }
 
         .chat-item:hover {
@@ -180,8 +239,8 @@
         }
 
         .chat-avatar {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: linear-gradient(135deg, #00ff88, #0066ff);
             display: flex;
@@ -189,17 +248,43 @@
             justify-content: center;
             color: #000;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .chat-details {
+            flex: 1;
+            min-width: 0;
         }
 
         .chat-details h4 {
             color: #fff;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .chat-details p {
             color: #888;
-            font-size: 12px;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            background: #ff4444;
+            color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         .chat-area {
@@ -210,7 +295,7 @@
         }
 
         .chat-header {
-            padding: 20px;
+            padding: 15px 20px;
             background: #111;
             border-bottom: 1px solid #222;
             display: flex;
@@ -218,8 +303,38 @@
             gap: 15px;
         }
 
+        .chat-header-info {
+            flex: 1;
+        }
+
         .chat-header h3 {
             color: #fff;
+            font-size: 16px;
+        }
+
+        .chat-header p {
+            color: #888;
+            font-size: 11px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #00ff88;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .header-btn:hover {
+            background: #00ff88;
+            color: #000;
         }
 
         .chat-messages {
@@ -228,12 +343,12 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         .message {
             max-width: 70%;
-            padding: 12px 18px;
+            padding: 10px 15px;
             border-radius: 15px;
             position: relative;
         }
@@ -251,14 +366,37 @@
             border: 1px solid #333;
         }
 
+        .message-sender {
+            font-size: 10px;
+            color: #00ff88;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+
+        .message-text {
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
         .message-time {
             font-size: 10px;
             opacity: 0.7;
             margin-top: 5px;
+            text-align: right;
+        }
+
+        .system-message {
+            align-self: center;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
         }
 
         .chat-input {
-            padding: 20px;
+            padding: 15px 20px;
             background: #111;
             border-top: 1px solid #222;
             display: flex;
@@ -296,6 +434,275 @@
             transform: scale(1.05);
         }
 
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .modal h3 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal input, .modal textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .modal input:focus, .modal textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .btn-success {
+            background: #00ff88;
+            color: #000;
+        }
+
+        /* Notification Bell */
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .notification-bell::before {
+            content: '';
+            font-size: 20px;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4444;
+            color: #fff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* Notification Panel */
+        .notification-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100%;
+            background: #111;
+            border-left: 1px solid #222;
+            z-index: 1500;
+            transition: right 0.3s;
+            overflow-y: auto;
+        }
+
+        .notification-panel.open {
+            right: 0;
+        }
+
+        .notification-panel-header {
+            padding: 20px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-panel-header h3 {
+            color: #00ff88;
+        }
+
+        .close-panel {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #222;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .notification-item:hover {
+            background: #1a1a1a;
+        }
+
+        .notification-item.unread {
+            border-left: 3px solid #00ff88;
+        }
+
+        .notification-item h4 {
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .notification-item p {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .notification-item .time {
+            color: #666;
+            font-size: 10px;
+            margin-top: 5px;
+        }
+
+        /* Group Search Results */
+        .search-result {
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-info h4 {
+            color: #fff;
+            margin-bottom: 3px;
+        }
+
+        .search-result-info p {
+            color: #888;
+            font-size: 11px;
+        }
+
+        .join-btn {
+            padding: 8px 15px;
+            background: #00ff88;
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .join-btn:disabled {
+            background: #333;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* Request Item */
+        .request-item {
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .request-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* Members List */
+        .member-item {
+            padding: 10px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .member-item .member-name {
+            color: #fff;
+        }
+
+        .member-item .member-role {
+            color: #00ff88;
+            font-size: 11px;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -328,9 +735,21 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #00ff88;
         }
+
+        .empty-state {
+            text-align: center;
+            color: #888;
+            padding: 40px;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
+    <!-- Auth Modal -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
             <h2>🔐 Secret X</h2>
@@ -353,41 +772,112 @@
         </div>
     </div>
 
+    <!-- Main App -->
     <div class="app-container hidden" id="appContainer">
+        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <h3>🔐 Secret X</h3>
-                <div class="user-info">
+                <div class="user-info-bar">
+                    <h3>🔐 Secret X</h3>
+                    <div class="notification-bell" onclick="toggleNotifications()">
+                        <span class="notification-count hidden" id="notifCount">0</span>
+                    </div>
+                </div>
+                <div class="user-details">
                     <div id="userName"></div>
-                    <div id="userRole" style="color: #00ff88;"></div>
+                    <div class="role-badge" id="userRole"></div>
+                </div>
+                <div class="sidebar-actions">
+                    <button class="action-btn active" onclick="showSection('chats')">💬 Chats</button>
+                    <button class="action-btn" onclick="showSection('groups')">🔍 Groups</button>
+                    <button class="action-btn" onclick="showCreateGroup()"> New</button>
                 </div>
             </div>
+
+            <!-- Search Box -->
+            <div class="search-box hidden" id="searchBox">
+                <input type="text" id="groupSearch" placeholder="Search groups..." oninput="searchGroups()">
+            </div>
+
+            <!-- Chat List -->
             <div class="chat-list" id="chatList"></div>
         </div>
 
+        <!-- Chat Area -->
         <div class="chat-area">
             <div class="chat-header">
                 <div class="chat-avatar" id="chatAvatar">?</div>
-                <h3 id="chatTitle">Select a chat</h3>
+                <div class="chat-header-info">
+                    <h3 id="chatTitle">Select a chat</h3>
+                    <p id="chatSubtitle"></p>
+                </div>
+                <div class="header-actions" id="headerActions"></div>
             </div>
             <div class="chat-messages" id="chatMessages">
-                <p style="color: #888; text-align: center; margin-top: 50px;">
-                    Chat select karo messages dekhne ke liye
-                </p>
+                <div class="empty-state">
+                    <div class="icon">💬</div>
+                    <p>Chat select karo messages dekhne ke liye</p>
+                </div>
             </div>
-            <div class="chat-input">
+            <div class="chat-input hidden" id="chatInput">
                 <input type="text" id="messageInput" placeholder="Type a message...">
                 <button onclick="sendMessage()">Send</button>
             </div>
         </div>
     </div>
 
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="close-panel" onclick="toggleNotifications()">×</button>
+        </div>
+        <div id="notificationList"></div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div class="modal-overlay hidden" id="createGroupModal">
+        <div class="modal">
+            <h3>➕ Create New Group</h3>
+            <input type="text" id="newGroupName" placeholder="Group Name">
+            <textarea id="newGroupDesc" placeholder="Group Description (optional)" rows="3"></textarea>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('createGroupModal')">Cancel</button>
+                <button class="btn-primary" onclick="createGroup()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Info Modal -->
+    <div class="modal-overlay hidden" id="groupInfoModal">
+        <div class="modal">
+            <h3>👥 Group Info</h3>
+            <div id="groupMembersList"></div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('groupInfoModal')">Close</button>
+                <button class="btn-danger" id="leaveGroupBtn" onclick="leaveGroup()">Leave Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Requests Modal -->
+    <div class="modal-overlay hidden" id="adminRequestsModal">
+        <div class="modal">
+            <h3>📋 Join Requests</h3>
+            <div id="requestsList"></div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('adminRequestsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // ✅ TUMHARA ACTUAL FIREBASE CONFIG
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyCX9myU2sx-LCyGAUsKuVEOJJXo7jhurdg",
             authDomain: "secret-x-c3045.firebaseapp.com",
@@ -402,24 +892,40 @@
         const db = firebase.firestore();
 
         let currentUser = null;
-        let currentChat = null;
         let currentRole = 'member';
+        let currentChat = null;
+        let currentSection = 'chats';
+        let myGroups = [];
+        let unreadMessages = {};
+        let notifications = [];
+        let messagesListener = null;
 
+        // Auth Toggle
         function toggleAuth() {
             document.getElementById('loginForm').classList.toggle('hidden');
             document.getElementById('registerForm').classList.toggle('hidden');
+            clearErrors();
+        }
+
+        function clearErrors() {
             document.getElementById('loginError').textContent = '';
             document.getElementById('regError').textContent = '';
             document.getElementById('regSuccess').textContent = '';
         }
 
+        // Register
         async function register() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
 
             if (!name || !email || !password) {
                 document.getElementById('regError').textContent = 'Sab fields bharo!';
+                return;
+            }
+
+            if (password.length < 6) {
+                document.getElementById('regError').textContent = 'Password 6 characters se bada hona chahiye!';
                 return;
             }
 
@@ -443,8 +949,9 @@
             }
         }
 
+        // Login
         async function login() {
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
             try {
@@ -454,6 +961,7 @@
             }
         }
 
+        // Auth State
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
@@ -468,7 +976,8 @@
                     document.getElementById('userName').textContent = userData.name;
                     document.getElementById('userRole').textContent = currentRole.toUpperCase();
 
-                    loadChats();
+                    loadMyGroups();
+                    loadNotifications();
                 }
             } else {
                 currentUser = null;
@@ -477,145 +986,552 @@
             }
         });
 
-        async function loadChats() {
+        // Load My Groups
+        async function loadMyGroups() {
+            const groupsRef = db.collection('groups');
+            const query1 = groupsRef.where('members', 'array-contains', currentUser.uid);
+            const query2 = groupsRef.where('admin', '==', currentUser.uid);
+
+            const [snap1, snap2] = await Promise.all([query1.get(), query2.get()]);
+            
+            const groupsMap = new Map();
+            snap1.forEach(doc => groupsMap.set(doc.id, doc.data()));
+            snap2.forEach(doc => groupsMap.set(doc.id, doc.data()));
+
+            myGroups = Array.from(groupsMap.entries()).map(([id, data]) => ({ id, ...data }));
+            
+            if (currentSection === 'chats') {
+                renderChats();
+            }
+        }
+
+        // Render Chats
+        function renderChats() {
             const chatList = document.getElementById('chatList');
             chatList.innerHTML = '';
 
-            // Group chat
-            const groupDiv = document.createElement('div');
-            groupDiv.className = 'chat-item';
-            groupDiv.onclick = (e) => openChat('group', 'Secret Group', null, e.currentTarget);
-            groupDiv.innerHTML = `
-                <div class="chat-avatar">G</div>
-                <div class="chat-details">
-                    <h4>Secret Group</h4>
-                    <p>Group chat</p>
-                </div>
-            `;
-            chatList.appendChild(groupDiv);
-
-            // Admin chat for members
-            if (currentRole === 'member') {
-                const adminQuery = await db.collection('users').where('role', '==', 'admin').get();
-                adminQuery.forEach(doc => {
-                    const adminData = doc.data();
-                    const adminDiv = document.createElement('div');
-                    adminDiv.className = 'chat-item';
-                    adminDiv.onclick = (e) => openChat('admin', adminData.name + ' (Admin)', doc.id, e.currentTarget);
-                    adminDiv.innerHTML = `
-                        <div class="chat-avatar">A</div>
-                        <div class="chat-details">
-                            <h4>${adminData.name} (Admin)</h4>
-                            <p>Private chat</p>
-                        </div>
-                    `;
-                    chatList.appendChild(adminDiv);
-                });
+            if (myGroups.length === 0) {
+                chatList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🔍</div>
+                        <p>Koi group nahi mila</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Groups section mein jao aur join karo</p>
+                    </div>
+                `;
+                return;
             }
 
-            // Member chats for admin
-            if (currentRole === 'admin') {
-                const membersQuery = await db.collection('users').where('role', '==', 'member').get();
-                membersQuery.forEach(doc => {
-                    const memberData = doc.data();
-                    const memberDiv = document.createElement('div');
-                    memberDiv.className = 'chat-item';
-                    memberDiv.onclick = (e) => openChat('member', memberData.name, doc.id, e.currentTarget);
-                    memberDiv.innerHTML = `
-                        <div class="chat-avatar">${memberData.name[0].toUpperCase()}</div>
-                        <div class="chat-details">
-                            <h4>${memberData.name}</h4>
-                            <p>Private chat</p>
-                        </div>
-                    `;
-                    chatList.appendChild(memberDiv);
-                });
-            }
-        }
-
-        function openChat(type, name, userId = null, element = null) {
-            currentChat = { type, name, userId };
-            document.getElementById('chatTitle').textContent = name;
-            document.getElementById('chatAvatar').textContent = name[0].toUpperCase();
-
-            if (element) {
-                document.querySelectorAll('.chat-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                element.classList.add('active');
-            }
-
-            loadMessages();
-        }
-
-        async function loadMessages() {
-            const messagesDiv = document.getElementById('chatMessages');
-            messagesDiv.innerHTML = '';
-
-            let messagesQuery;
-            if (currentChat.type === 'group') {
-                messagesQuery = db.collection('chats').doc('group').collection('messages')
-                    .orderBy('timestamp', 'asc');
-            } else {
-                const chatId = [currentUser.uid, currentChat.userId].sort().join('_');
-                messagesQuery = db.collection('chats').doc(chatId).collection('messages')
-                    .orderBy('timestamp', 'asc');
-            }
-
-            messagesQuery.onSnapshot(snapshot => {
-                messagesDiv.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const msg = doc.data();
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = `message ${msg.senderId === currentUser.uid ? 'sent' : 'received'}`;
-                    
-                    const timeStr = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString() : '';
-                    msgDiv.innerHTML = `
-                        <div>${msg.text}</div>
-                        <div class="message-time">${timeStr}</div>
-                    `;
-                    messagesDiv.appendChild(msgDiv);
-                });
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            myGroups.forEach(group => {
+                const div = document.createElement('div');
+                div.className = 'chat-item';
+                div.onclick = (e) => openChat(group, e.currentTarget);
+                
+                const unread = unreadMessages[group.id] || 0;
+                
+                div.innerHTML = `
+                    <div class="chat-avatar">${group.name[0].toUpperCase()}</div>
+                    <div class="chat-details">
+                        <h4>${group.name}</h4>
+                        <p>${group.description || 'Group chat'} • ${group.members?.length || 0} members</p>
+                    </div>
+                    ${unread > 0 ? `<div class="unread-badge">${unread}</div>` : ''}
+                `;
+                chatList.appendChild(div);
             });
         }
 
+        // Show Section
+        function showSection(section) {
+            currentSection = section;
+            document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (section === 'chats') {
+                document.getElementById('searchBox').classList.add('hidden');
+                renderChats();
+            } else if (section === 'groups') {
+                document.getElementById('searchBox').classList.remove('hidden');
+                searchGroups();
+            }
+        }
+
+        // Search Groups
+        async function searchGroups() {
+            const query = document.getElementById('groupSearch').value.toLowerCase();
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
+
+            let groupsQuery = db.collection('groups');
+            if (query) {
+                groupsQuery = groupsQuery.where('nameLower', '>=', query).where('nameLower', '<=', query + '\uf8ff');
+            }
+
+            const snapshot = await groupsQuery.get();
+            
+            if (snapshot.empty) {
+                chatList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🔍</div>
+                        <p>Koi group nahi mila</p>
+                    </div>
+                `;
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const group = doc.data();
+                const isMember = group.members?.includes(currentUser.uid);
+                const isPending = group.pendingRequests?.includes(currentUser.uid);
+                const isAdmin = group.admin === currentUser.uid;
+
+                const div = document.createElement('div');
+                div.className = 'search-result';
+                
+                let buttonHtml = '';
+                if (isAdmin) {
+                    buttonHtml = '<button class="join-btn" disabled>Admin</button>';
+                } else if (isMember) {
+                    buttonHtml = '<button class="join-btn" disabled>Joined</button>';
+                } else if (isPending) {
+                    buttonHtml = '<button class="join-btn" disabled>Pending</button>';
+                } else {
+                    buttonHtml = `<button class="join-btn" onclick="requestJoin('${doc.id}')">Join Request</button>`;
+                }
+
+                div.innerHTML = `
+                    <div class="search-result-info">
+                        <h4>${group.name}</h4>
+                        <p>${group.description || 'No description'} • ${group.members?.length || 0} members</p>
+                    </div>
+                    ${buttonHtml}
+                `;
+                chatList.appendChild(div);
+            });
+        }
+
+        // Request Join
+        async function requestJoin(groupId) {
+            try {
+                await db.collection('groups').doc(groupId).update({
+                    pendingRequests: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+                });
+
+                // Get group info for notification
+                const groupDoc = await db.collection('groups').doc(groupId).get();
+                const group = groupDoc.data();
+
+                // Create notification for admin
+                await db.collection('notifications').add({
+                    userId: group.admin,
+                    type: 'join_request',
+                    title: 'New Join Request',
+                    message: `${document.getElementById('userName').textContent} wants to join ${group.name}`,
+                    groupId: groupId,
+                    requesterId: currentUser.uid,
+                    read: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('Join request bhej diya! Admin approve karega.');
+                searchGroups();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Create Group
+        function showCreateGroup() {
+            document.getElementById('createGroupModal').classList.remove('hidden');
+        }
+
+        async function createGroup() {
+            const name = document.getElementById('newGroupName').value.trim();
+            const description = document.getElementById('newGroupDesc').value.trim();
+
+            if (!name) {
+                alert('Group name daalo!');
+                return;
+            }
+
+            try {
+                await db.collection('groups').add({
+                    name: name,
+                    nameLower: name.toLowerCase(),
+                    description: description,
+                    admin: currentUser.uid,
+                    members: [currentUser.uid],
+                    pendingRequests: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                closeModal('createGroupModal');
+                document.getElementById('newGroupName').value = '';
+                document.getElementById('newGroupDesc').value = '';
+                
+                await loadMyGroups();
+                showSection('chats');
+                document.querySelectorAll('.action-btn')[0].classList.add('active');
+                document.querySelectorAll('.action-btn')[2].classList.remove('active');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Open Chat
+        function openChat(group, element) {
+            currentChat = group;
+            document.getElementById('chatTitle').textContent = group.name;
+            document.getElementById('chatSubtitle').textContent = `${group.members?.length || 0} members`;
+            document.getElementById('chatAvatar').textContent = group.name[0].toUpperCase();
+            document.getElementById('chatInput').classList.remove('hidden');
+
+            if (element) {
+                document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+                element.classList.add('active');
+            }
+
+            // Header actions
+            const headerActions = document.getElementById('headerActions');
+            headerActions.innerHTML = `
+                <button class="header-btn" onclick="showGroupInfo()">👥 Info</button>
+                ${currentRole === 'admin' || group.admin === currentUser.uid ? 
+                    `<button class="header-btn" onclick="showAdminRequests()">📋 Requests</button>` : ''}
+            `;
+
+            // Clear unread
+            unreadMessages[group.id] = 0;
+            renderChats();
+
+            loadMessages(group.id);
+        }
+
+        // Load Messages
+        function loadMessages(groupId) {
+            if (messagesListener) {
+                messagesListener();
+            }
+
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML = '';
+
+            messagesListener = db.collection('groups').doc(groupId).collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snapshot => {
+                    messagesDiv.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const msg = doc.data();
+                        const div = document.createElement('div');
+                        
+                        if (msg.type === 'system') {
+                            div.className = 'system-message';
+                            div.textContent = msg.text;
+                        } else {
+                            div.className = `message ${msg.senderId === currentUser.uid ? 'sent' : 'received'}`;
+                            div.innerHTML = `
+                                ${msg.senderId !== currentUser.uid ? `<div class="message-sender">${msg.senderName}</div>` : ''}
+                                <div class="message-text">${msg.text}</div>
+                                <div class="message-time">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString() : ''}</div>
+                            `;
+                        }
+                        messagesDiv.appendChild(div);
+                    });
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                });
+        }
+
+        // Send Message
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
 
             if (!text || !currentChat) return;
 
-            // Permission check
-            if (currentChat.type !== 'group') {
-                if (currentRole === 'member' && currentChat.type !== 'admin') {
-                    alert('Members sirf admin ko message kar sakte hain!');
-                    return;
+            try {
+                await db.collection('groups').doc(currentChat.id).collection('messages').add({
+                    text: text,
+                    senderId: currentUser.uid,
+                    senderName: document.getElementById('userName').textContent,
+                    type: 'message',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                input.value = '';
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Show Group Info
+        async function showGroupInfo() {
+            if (!currentChat) return;
+
+            const groupDoc = await db.collection('groups').doc(currentChat.id).get();
+            const group = groupDoc.data();
+
+            const membersList = document.getElementById('groupMembersList');
+            membersList.innerHTML = '';
+
+            // Fetch all members info
+            const memberIds = group.members || [];
+            for (const memberId of memberIds) {
+                const userDoc = await db.collection('users').doc(memberId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const isAdmin = group.admin === memberId;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'member-item';
+                    div.innerHTML = `
+                        <div>
+                            <div class="member-name">${userData.name} ${isAdmin ? '👑' : ''}</div>
+                            <div class="member-role">${isAdmin ? 'Admin' : 'Member'}</div>
+                        </div>
+                    `;
+                    membersList.appendChild(div);
                 }
             }
 
-            let chatRef;
-            if (currentChat.type === 'group') {
-                chatRef = db.collection('chats').doc('group').collection('messages');
+            // Show/hide leave button
+            const leaveBtn = document.getElementById('leaveGroupBtn');
+            if (group.admin === currentUser.uid) {
+                leaveBtn.classList.add('hidden');
             } else {
-                const chatId = [currentUser.uid, currentChat.userId].sort().join('_');
-                chatRef = db.collection('chats').doc(chatId).collection('messages');
+                leaveBtn.classList.remove('hidden');
             }
 
-            await chatRef.add({
-                text: text,
-                senderId: currentUser.uid,
-                senderName: document.getElementById('userName').textContent,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            input.value = '';
+            document.getElementById('groupInfoModal').classList.remove('hidden');
         }
 
+        // Leave Group
+        async function leaveGroup() {
+            if (!currentChat) return;
+
+            if (!confirm('Kya aap sach mein group chhodna chahte ho?')) return;
+
+            try {
+                await db.collection('groups').doc(currentChat.id).update({
+                    members: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
+                });
+
+                // Add system message
+                await db.collection('groups').doc(currentChat.id).collection('messages').add({
+                    text: `${document.getElementById('userName').textContent} left the group`,
+                    type: 'system',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                closeModal('groupInfoModal');
+                await loadMyGroups();
+                currentChat = null;
+                document.getElementById('chatTitle').textContent = 'Select a chat';
+                document.getElementById('chatSubtitle').textContent = '';
+                document.getElementById('chatInput').classList.add('hidden');
+                document.getElementById('chatMessages').innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">💬</div>
+                        <p>Chat select karo messages dekhne ke liye</p>
+                    </div>
+                `;
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Show Admin Requests
+        async function showAdminRequests() {
+            if (!currentChat) return;
+
+            const groupDoc = await db.collection('groups').doc(currentChat.id).get();
+            const group = groupDoc.data();
+
+            const requestsList = document.getElementById('requestsList');
+            requestsList.innerHTML = '';
+
+            const pendingRequests = group.pendingRequests || [];
+
+            if (pendingRequests.length === 0) {
+                requestsList.innerHTML = '<div class="empty-state"><p>Koi pending request nahi hai</p></div>';
+            } else {
+                for (const requesterId of pendingRequests) {
+                    const userDoc = await db.collection('users').doc(requesterId).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        const div = document.createElement('div');
+                        div.className = 'request-item';
+                        div.innerHTML = `
+                            <div>
+                                <div class="member-name">${userData.name}</div>
+                                <div class="member-role">${userData.email}</div>
+                            </div>
+                            <div class="request-actions">
+                                <button class="btn-success" onclick="acceptRequest('${currentChat.id}', '${requesterId}')">Accept</button>
+                                <button class="btn-danger" onclick="rejectRequest('${currentChat.id}', '${requesterId}')">Reject</button>
+                            </div>
+                        `;
+                        requestsList.appendChild(div);
+                    }
+                }
+            }
+
+            document.getElementById('adminRequestsModal').classList.remove('hidden');
+        }
+
+        // Accept Request
+        async function acceptRequest(groupId, requesterId) {
+            try {
+                await db.collection('groups').doc(groupId).update({
+                    members: firebase.firestore.FieldValue.arrayUnion(requesterId),
+                    pendingRequests: firebase.firestore.FieldValue.arrayRemove(requesterId)
+                });
+
+                // Add system message
+                const requesterDoc = await db.collection('users').doc(requesterId).get();
+                await db.collection('groups').doc(groupId).collection('messages').add({
+                    text: `${requesterDoc.data().name} joined the group`,
+                    type: 'system',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Send notification to requester
+                await db.collection('notifications').add({
+                    userId: requesterId,
+                    type: 'request_accepted',
+                    title: 'Request Accepted',
+                    message: `Aapki join request accept ho gayi!`,
+                    groupId: groupId,
+                    read: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showAdminRequests();
+                await loadMyGroups();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Reject Request
+        async function rejectRequest(groupId, requesterId) {
+            try {
+                await db.collection('groups').doc(groupId).update({
+                    pendingRequests: firebase.firestore.FieldValue.arrayRemove(requesterId)
+                });
+
+                // Send notification to requester
+                await db.collection('notifications').add({
+                    userId: requesterId,
+                    type: 'request_rejected',
+                    title: 'Request Rejected',
+                    message: `Aapki join request reject ho gayi.`,
+                    groupId: groupId,
+                    read: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showAdminRequests();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Load Notifications
+        function loadNotifications() {
+            db.collection('notifications')
+                .where('userId', '==', currentUser.uid)
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(snapshot => {
+                    notifications = [];
+                    let unreadCount = 0;
+                    
+                    snapshot.forEach(doc => {
+                        const notif = { id: doc.id, ...doc.data() };
+                        notifications.push(notif);
+                        if (!notif.read) unreadCount++;
+                    });
+
+                    // Update badge
+                    const badge = document.getElementById('notifCount');
+                    if (unreadCount > 0) {
+                        badge.textContent = unreadCount;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+
+                    renderNotifications();
+                });
+        }
+
+        // Render Notifications
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+            list.innerHTML = '';
+
+            if (notifications.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Koi notification nahi hai</p></div>';
+                return;
+            }
+
+            notifications.forEach(notif => {
+                const div = document.createElement('div');
+                div.className = `notification-item ${!notif.read ? 'unread' : ''}`;
+                div.onclick = () => handleNotification(notif);
+                div.innerHTML = `
+                    <h4>${notif.title}</h4>
+                    <p>${notif.message}</p>
+                    <div class="time">${notif.createdAt ? new Date(notif.createdAt.toDate()).toLocaleString() : ''}</div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // Handle Notification Click
+        async function handleNotification(notif) {
+            // Mark as read
+            await db.collection('notifications').doc(notif.id).update({ read: true });
+
+            if (notif.groupId) {
+                const groupDoc = await db.collection('groups').doc(notif.groupId).get();
+                if (groupDoc.exists) {
+                    const group = { id: notif.groupId, ...groupDoc.data() };
+                    // Find and click the chat item
+                    const chatItems = document.querySelectorAll('.chat-item');
+                    chatItems.forEach(item => {
+                        if (item.onclick) {
+                            // Trigger open chat
+                        }
+                    });
+                    openChat(group);
+                }
+            }
+
+            toggleNotifications();
+        }
+
+        // Toggle Notifications Panel
+        function toggleNotifications() {
+            document.getElementById('notificationPanel').classList.toggle('open');
+        }
+
+        // Close Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Enter key to send
         document.getElementById('messageInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
             }
+        });
+
+        // Close modals on outside click
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
         });
     </script>
 </body>
