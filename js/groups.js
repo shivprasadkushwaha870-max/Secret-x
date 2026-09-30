@@ -1,5 +1,5 @@
 // ============================================
-// 👥 GROUPS MODULE (v3 - SETTINGS FIXED)
+// 👥 GROUPS MODULE (v4 - BELL RESET FIXED)
 // ============================================
 
 const groupListEl = document.getElementById('group-list');
@@ -46,19 +46,17 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
           memberIds.push(userDoc.id);
           const uData = userDoc.data();
           memberData[userDoc.id] = {
-            username: uData.username || uData.email || email,
+            username: uData.username || uData.name || uData.email || email,
             email: uData.email || email,
             isAdmin: false,
             joinedAt: firebase.firestore.FieldValue.serverTimestamp()
           };
         }
-      } else {
-        console.warn(`User ${email} not found`);
       }
     }
 
     if (memberIds.length < 2) {
-      alert('Kam se kam 1 member add karo jo Secret-x pe ho!');
+      alert('Kam se kam 1 member add karo!');
       return;
     }
 
@@ -70,7 +68,7 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
       createdBy: currentUser.uid,
       members: memberIds,
       memberData: memberData,
-      lastMessage: 'Group ban gaya! 🎉',
+      lastMessage: 'Group ban gaya! ',
       lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       unreadCount: unreadCount
@@ -119,7 +117,6 @@ function loadGroups() {
         }
         const memberCount = group.members ? group.members.length : 0;
 
-        // Unread count
         const unread = group.unreadCount && group.unreadCount[currentUser.uid] ? group.unreadCount[currentUser.uid] : 0;
         const unreadBadge = unread > 0 ? `<span class="unread-badge">${unread}</span>` : '';
 
@@ -129,19 +126,17 @@ function loadGroups() {
           <div class="avatar" style="background: linear-gradient(135deg, #06d6a0, #7c3aed);">${initial}</div>
           <div class="chat-item-info">
             <h4>${escapeHtml(name)} ${unreadBadge}</h4>
-            <p> ${memberCount} members • ${escapeHtml(lastMsg)}</p>
+            <p>👥 ${memberCount} members • ${escapeHtml(lastMsg)}</p>
           </div>
           <span class="chat-item-time">${time}</span>
         `;
         item.addEventListener('click', () => openGroupChat(docId, group));
         groupListEl.appendChild(item);
       });
-    }, (err) => {
-      console.error('Groups error:', err);
     });
 }
 
-// ---- Open Group Chat (SETTINGS BUTTON FIXED) ----
+// ---- Open Group Chat (BELL RESET FIXED) ----
 function openGroupChat(groupId, groupData) {
   activeChatId = groupId;
   activeChatType = 'group';
@@ -150,7 +145,6 @@ function openGroupChat(groupId, groupData) {
   activeChatEl.classList.remove('hidden');
   chatNameEl.textContent = groupData.name;
   
-  // Show logo if exists
   if (groupData.logo) {
     chatAvatarEl.innerHTML = `<img src="${escapeHtml(groupData.logo)}" class="group-logo" onerror="this.parentElement.textContent='${groupData.name.charAt(0).toUpperCase()}'" />`;
   } else {
@@ -161,8 +155,17 @@ function openGroupChat(groupId, groupData) {
 
   document.getElementById('app-screen').classList.add('chat-open');
 
-  // Add settings button - FIXED LOGIC
   addGroupSettingsButton(groupId, groupData);
+
+  // ⭐ CRITICAL FIX: Reset unread count when group chat opens
+  if (typeof resetUnreadCount === 'function') {
+    resetUnreadCount(groupId, 'group');
+  } else {
+    // Fallback if function not available
+    db.collection('groups').doc(groupId).update({
+      [`unreadCount.${currentUser.uid}`]: 0
+    }).catch(err => console.error('Reset error:', err));
+  }
 
   if (unsubscribeMessages) unsubscribeMessages();
   messagesContainer.innerHTML = '<div class="spinner"></div>';
@@ -193,18 +196,15 @@ function openGroupChat(groupId, groupData) {
   document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 }
 
-// ---- FIXED: Group Settings Button ----
+// ---- Group Settings Button ----
 function addGroupSettingsButton(groupId, groupData) {
-  // Remove old button
   const oldBtn = document.getElementById('btn-group-settings');
   if (oldBtn) oldBtn.remove();
 
-  // Check if user is admin OR creator
   const memberInfo = groupData.memberData ? groupData.memberData[currentUser.uid] : null;
   const isAdmin = memberInfo && memberInfo.isAdmin === true;
   const isCreator = groupData.createdBy === currentUser.uid;
 
-  // Show settings button if admin OR creator
   if (isAdmin || isCreator) {
     const settingsBtn = document.createElement('button');
     settingsBtn.id = 'btn-group-settings';
@@ -213,9 +213,6 @@ function addGroupSettingsButton(groupId, groupData) {
     settingsBtn.title = 'Group Settings (Admin)';
     settingsBtn.addEventListener('click', () => openGroupSettings(groupId, groupData));
     document.querySelector('.chat-header').appendChild(settingsBtn);
-    console.log('✅ Settings button added for admin/creator');
-  } else {
-    console.log('⚠️ User is not admin, no settings button');
   }
 }
 
@@ -258,7 +255,7 @@ function openGroupSettings(groupId, groupData) {
 
   modal.innerHTML = `
     <div class="modal-content" style="max-height:80vh;overflow-y:auto;">
-      <h3>⚙️ Group Settings</h3>
+      <h3>️ Group Settings</h3>
       
       <div class="input-group">
         <label style="font-size:12px;color:var(--text-muted);">Group Name</label>
