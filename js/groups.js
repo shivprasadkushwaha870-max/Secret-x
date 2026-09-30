@@ -1,5 +1,5 @@
 // ============================================
-// 👥 GROUPS MODULE (v2 - ADMIN + SETTINGS)
+// 👥 GROUPS MODULE (v3 - SETTINGS FIXED)
 // ============================================
 
 const groupListEl = document.getElementById('group-list');
@@ -33,7 +33,8 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
       [currentUser.uid]: {
         username: currentUserData.username || 'User',
         email: currentUserData.email || '',
-        isAdmin: true
+        isAdmin: true,
+        joinedAt: firebase.firestore.FieldValue.serverTimestamp()
       }
     };
 
@@ -47,7 +48,8 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
           memberData[userDoc.id] = {
             username: uData.username || uData.email || email,
             email: uData.email || email,
-            isAdmin: false
+            isAdmin: false,
+            joinedAt: firebase.firestore.FieldValue.serverTimestamp()
           };
         }
       } else {
@@ -56,9 +58,12 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
     }
 
     if (memberIds.length < 2) {
-      alert('Kam se kam 1 member add karo!');
+      alert('Kam se kam 1 member add karo jo Secret-x pe ho!');
       return;
     }
+
+    const unreadCount = {};
+    memberIds.forEach(id => { unreadCount[id] = 0; });
 
     await db.collection('groups').add({
       name: groupName,
@@ -68,7 +73,7 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
       lastMessage: 'Group ban gaya! 🎉',
       lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      unreadCount: {}
+      unreadCount: unreadCount
     });
 
     groupModal.classList.add('hidden');
@@ -91,7 +96,7 @@ function loadGroups() {
       groupListEl.innerHTML = '';
 
       if (snapshot.empty) {
-        groupListEl.innerHTML = '<p class="empty-msg">Koi group nahi hai. Upar  dabao!</p>';
+        groupListEl.innerHTML = '<p class="empty-msg">Koi group nahi hai. Upar 👥 dabao!</p>';
         return;
       }
 
@@ -114,13 +119,17 @@ function loadGroups() {
         }
         const memberCount = group.members ? group.members.length : 0;
 
+        // Unread count
+        const unread = group.unreadCount && group.unreadCount[currentUser.uid] ? group.unreadCount[currentUser.uid] : 0;
+        const unreadBadge = unread > 0 ? `<span class="unread-badge">${unread}</span>` : '';
+
         const item = document.createElement('div');
         item.className = `chat-item ${activeChatId === docId ? 'active' : ''}`;
         item.innerHTML = `
           <div class="avatar" style="background: linear-gradient(135deg, #06d6a0, #7c3aed);">${initial}</div>
           <div class="chat-item-info">
-            <h4>${escapeHtml(name)}</h4>
-            <p>👥 ${memberCount} members • ${escapeHtml(lastMsg)}</p>
+            <h4>${escapeHtml(name)} ${unreadBadge}</h4>
+            <p> ${memberCount} members • ${escapeHtml(lastMsg)}</p>
           </div>
           <span class="chat-item-time">${time}</span>
         `;
@@ -129,13 +138,10 @@ function loadGroups() {
       });
     }, (err) => {
       console.error('Groups error:', err);
-      if (err.code === 'permission-denied') {
-        groupListEl.innerHTML = '<p class="empty-msg">⚠️ Permission denied!</p>';
-      }
     });
 }
 
-// ---- Open Group Chat with Settings Button ----
+// ---- Open Group Chat (SETTINGS BUTTON FIXED) ----
 function openGroupChat(groupId, groupData) {
   activeChatId = groupId;
   activeChatType = 'group';
@@ -143,12 +149,19 @@ function openGroupChat(groupId, groupData) {
   noChatEl.classList.add('hidden');
   activeChatEl.classList.remove('hidden');
   chatNameEl.textContent = groupData.name;
-  chatAvatarEl.textContent = groupData.name.charAt(0).toUpperCase();
+  
+  // Show logo if exists
+  if (groupData.logo) {
+    chatAvatarEl.innerHTML = `<img src="${escapeHtml(groupData.logo)}" class="group-logo" onerror="this.parentElement.textContent='${groupData.name.charAt(0).toUpperCase()}'" />`;
+  } else {
+    chatAvatarEl.textContent = groupData.name.charAt(0).toUpperCase();
+  }
+  
   chatStatusEl.textContent = `${groupData.members.length} members`;
 
   document.getElementById('app-screen').classList.add('chat-open');
 
-  // Add settings button to chat header (only for admin)
+  // Add settings button - FIXED LOGIC
   addGroupSettingsButton(groupId, groupData);
 
   if (unsubscribeMessages) unsubscribeMessages();
@@ -180,47 +193,51 @@ function openGroupChat(groupId, groupData) {
   document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 }
 
-// ---- Group Settings Button (Admin Only) ----
+// ---- FIXED: Group Settings Button ----
 function addGroupSettingsButton(groupId, groupData) {
-  // Remove old button if exists
+  // Remove old button
   const oldBtn = document.getElementById('btn-group-settings');
   if (oldBtn) oldBtn.remove();
 
-  const isMember = groupData.memberData && groupData.memberData[currentUser.uid];
-  const isAdmin = isMember && isMember.isAdmin;
+  // Check if user is admin OR creator
+  const memberInfo = groupData.memberData ? groupData.memberData[currentUser.uid] : null;
+  const isAdmin = memberInfo && memberInfo.isAdmin === true;
+  const isCreator = groupData.createdBy === currentUser.uid;
 
-  if (isAdmin) {
+  // Show settings button if admin OR creator
+  if (isAdmin || isCreator) {
     const settingsBtn = document.createElement('button');
     settingsBtn.id = 'btn-group-settings';
     settingsBtn.className = 'icon-btn';
     settingsBtn.innerHTML = '⚙️';
-    settingsBtn.title = 'Group Settings';
-    settingsBtn.style.marginLeft = 'auto';
+    settingsBtn.title = 'Group Settings (Admin)';
     settingsBtn.addEventListener('click', () => openGroupSettings(groupId, groupData));
     document.querySelector('.chat-header').appendChild(settingsBtn);
+    console.log('✅ Settings button added for admin/creator');
+  } else {
+    console.log('⚠️ User is not admin, no settings button');
   }
 }
 
 // ---- Group Settings Modal ----
 function openGroupSettings(groupId, groupData) {
-  // Remove old modal if exists
   const oldModal = document.getElementById('settings-modal');
   if (oldModal) oldModal.remove();
 
   const modal = document.createElement('div');
   modal.id = 'settings-modal';
   modal.className = 'modal';
-  
+
   let membersHtml = '';
   if (groupData.memberData) {
     Object.entries(groupData.memberData).forEach(([uid, data]) => {
       const isMe = uid === currentUser.uid;
       const isCreator = uid === groupData.createdBy;
-      const isAdmin = data.isAdmin;
+      const isAdmin = data.isAdmin === true;
       const role = isCreator ? '👑 Creator' : (isAdmin ? '⭐ Admin' : '👤 Member');
-      
+
       membersHtml += `
-        <div class="member-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border);">
+        <div class="member-item">
           <div class="avatar" style="width:32px;height:32px;font-size:14px;">${(data.username||'U').charAt(0).toUpperCase()}</div>
           <div style="flex:1;">
             <div style="font-weight:600;">${escapeHtml(data.username||'Unknown')} ${isMe?'(You)':''}</div>
@@ -250,16 +267,16 @@ function openGroupSettings(groupId, groupData) {
       
       <div class="input-group">
         <label style="font-size:12px;color:var(--text-muted);">Group Logo URL (optional)</label>
-        <input type="text" id="settings-group-logo" placeholder="https://example.com/logo.png" />
+        <input type="text" id="settings-group-logo" placeholder="https://example.com/logo.png" value="${groupData.logo || ''}" />
       </div>
 
       <h4 style="margin:16px 0 8px;font-size:14px;">👥 Members (${groupData.members.length})</h4>
-      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:200px;overflow-y:auto;">
         ${membersHtml}
       </div>
 
       <div class="modal-actions" style="margin-top:16px;">
-        <button id="btn-save-settings" class="btn btn-primary">Save Changes</button>
+        <button id="btn-save-settings" class="btn btn-primary">💾 Save Changes</button>
         <button id="btn-close-settings" class="btn btn-secondary">Close</button>
       </div>
     </div>
@@ -273,17 +290,16 @@ function openGroupSettings(groupId, groupData) {
   document.getElementById('btn-save-settings').addEventListener('click', async () => {
     const newName = document.getElementById('settings-group-name').value.trim();
     const newLogo = document.getElementById('settings-group-logo').value.trim();
-    
+
     if (!newName) { alert('Name khaali nahi ho sakta!'); return; }
-    
+
     const updateData = { name: newName };
     if (newLogo) updateData.logo = newLogo;
-    
+
     try {
       await db.collection('groups').doc(groupId).update(updateData);
       alert('✅ Settings saved!');
       modal.remove();
-      // Refresh
       if (typeof loadGroups === 'function') loadGroups();
     } catch (err) {
       alert('Error: ' + err.message);
@@ -291,7 +307,7 @@ function openGroupSettings(groupId, groupData) {
   });
 }
 
-// ---- Global Functions (called from inline onclick) ----
+// ---- Global Functions ----
 window.toggleAdmin = async function(groupId, uid, makeAdmin) {
   if (!confirm(makeAdmin ? 'Isse admin banana hai?' : 'Admin se remove karna hai?')) return;
   try {
@@ -313,7 +329,7 @@ window.removeMember = async function(groupId, uid) {
     const newMembers = data.members.filter(m => m !== uid);
     const newMemberData = { ...data.memberData };
     delete newMemberData[uid];
-    
+
     await db.collection('groups').doc(groupId).update({
       members: newMembers,
       memberData: newMemberData
@@ -325,7 +341,6 @@ window.removeMember = async function(groupId, uid) {
   }
 };
 
-// ---- Utilities ----
 function formatTime(date) {
   if (!date) return '';
   const now = new Date();
