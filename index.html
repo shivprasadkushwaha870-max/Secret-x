@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Secret-x | Private Chat</title>
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* CRITICAL: Force screen visibility even if CSS fails */
+    #auth-screen.active { display: flex !important; }
+    #app-screen.active { display: flex !important; }
+    #auth-screen:not(.active) { display: none !important; }
+    #app-screen:not(.active) { display: none !important; }
+    .hidden { display: none !important; }
+    .screen { display: none; }
+  </style>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -55,7 +64,7 @@
   <div id="app-screen" class="screen">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h2>🔒 Secret-x</h2>
+        <h2> Secret-x</h2>
         <div class="sidebar-actions">
           <button id="btn-notifications" class="icon-btn" title="Notifications">
             🔔<span id="notif-badge" class="notif-badge hidden">0</span>
@@ -109,11 +118,9 @@
             <h3 id="chat-name">Chat Name</h3>
             <span id="chat-status" class="chat-status">Online</span>
           </div>
-          <!-- Settings button will be added here dynamically -->
         </div>
 
-        <div id="messages-container" class="messages-container">
-        </div>
+        <div id="messages-container" class="messages-container"></div>
 
         <div class="message-input-area">
           <input type="text" id="message-input" placeholder="Type a message..." />
