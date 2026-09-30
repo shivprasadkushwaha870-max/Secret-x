@@ -1,33 +1,32 @@
 // ============================================
-// 🔥 FIREBASE CONFIGURATION
-// Apni Firebase config yahan paste karo!
-// Firebase Console → Project Settings → Web App
+// 🔥 FIREBASE CONFIGURATION (Secret-x)
+// Compat format (index.html ke CDN scripts ke liye perfect)
 // ============================================
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCX9myU2sx-LCyGAUsKuVEOJJXo7jhurdg",
+  authDomain: "secret-x-c3045.firebaseapp.com",
+  projectId: "secret-x-c3045",
+  storageBucket: "secret-x-c3045.firebasestorage.app",
+  messagingSenderId: "116252360970",
+  appId: "1:116252360970:web:98622eb77bf5646c89baf3"
 };
 
-// Initialize Firebase
+// Initialize Firebase (Compat syntax)
 firebase.initializeApp(firebaseConfig);
 
-// References
+// Global References (Taaki baaki files mein use ho sake)
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Enable offline persistence
+// Offline Persistence Enable karna (Optional but recommended)
 db.enablePersistence()
   .catch((err) => {
     if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+      console.warn('Multiple tabs open, persistence sirf ek tab mein enable ho sakta hai.');
     } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support persistence.');
+      console.warn('Yeh browser persistence support nahi karta.');
     }
   });
 
-console.log('🔥 Firebase initialized successfully!');
+console.log('🔥 Firebase Secret-x ke liye successfully initialize ho gaya!');
