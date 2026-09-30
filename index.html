@@ -1,1466 +1,161 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret X - Private Chat</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #0a0a0a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(120, 0, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 1000px;
-            height: 90vh;
-            background: #1a1a1a;
-            display: flex;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-        }
-
-        .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .auth-card {
-            background: #1a1a1a;
-            padding: 40px;
-            border-radius: 15px;
-            width: 350px;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-        }
-
-        .auth-card h2 {
-            color: #00ff88;
-            margin-bottom: 30px;
-            font-size: 28px;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
-        }
-
-        .auth-card input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .auth-card input:focus {
-            outline: none;
-            border-color: #00ff88;
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-        }
-
-        .auth-card button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
-            border: none;
-            border-radius: 8px;
-            color: #000;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .auth-card button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
-        }
-
-        .auth-toggle {
-            color: #888;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-
-        .auth-toggle span {
-            color: #00ff88;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .sidebar {
-            width: 30%;
-            background: #111;
-            border-right: 1px solid #222;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 15px;
-            background: #0a0a0a;
-            border-bottom: 1px solid #222;
-        }
-
-        .user-info-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .user-info-bar h3 {
-            color: #00ff88;
-            font-size: 18px;
-        }
-
-        .user-details {
-            color: #888;
-            font-size: 11px;
-            margin-bottom: 10px;
-        }
-
-        .user-details .role-badge {
-            color: #00ff88;
-            font-weight: bold;
-        }
-
-        .sidebar-actions {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 8px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #00ff88;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .action-btn:hover {
-            background: #00ff88;
-            color: #000;
-        }
-
-        .action-btn.active {
-            background: #00ff88;
-            color: #000;
-        }
-
-        .search-box {
-            padding: 10px;
-            background: #0a0a0a;
-            border-bottom: 1px solid #222;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 13px;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #00ff88;
-        }
-
-        .chat-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .chat-item {
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-        }
-
-        .chat-item:hover {
-            background: #1a1a1a;
-        }
-
-        .chat-item.active {
-            background: #1a1a1a;
-            border-left: 3px solid #00ff88;
-        }
-
-        .chat-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00ff88, #0066ff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            font-weight: bold;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .chat-details {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .chat-details h4 {
-            color: #fff;
-            margin-bottom: 3px;
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .chat-details p {
-            color: #888;
-            font-size: 11px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .unread-badge {
-            background: #ff4444;
-            color: #fff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #0a0a0a;
-        }
-
-        .chat-header {
-            padding: 15px 20px;
-            background: #111;
-            border-bottom: 1px solid #222;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .chat-header-info {
-            flex: 1;
-        }
-
-        .chat-header h3 {
-            color: #fff;
-            font-size: 16px;
-        }
-
-        .chat-header p {
-            color: #888;
-            font-size: 11px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .header-btn {
-            padding: 8px 12px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #00ff88;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .header-btn:hover {
-            background: #00ff88;
-            color: #000;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .message {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            position: relative;
-        }
-
-        .message.sent {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
-            color: #000;
-        }
-
-        .message.received {
-            align-self: flex-start;
-            background: #1a1a1a;
-            color: #fff;
-            border: 1px solid #333;
-        }
-
-        .message-sender {
-            font-size: 10px;
-            color: #00ff88;
-            margin-bottom: 3px;
-            font-weight: bold;
-        }
-
-        .message-text {
-            font-size: 14px;
-            word-wrap: break-word;
-        }
-
-        .message-time {
-            font-size: 10px;
-            opacity: 0.7;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        .system-message {
-            align-self: center;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
-        .chat-input {
-            padding: 15px 20px;
-            background: #111;
-            border-top: 1px solid #222;
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 12px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 25px;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .chat-input input:focus {
-            outline: none;
-            border-color: #00ff88;
-        }
-
-        .chat-input button {
-            padding: 12px 25px;
-            background: #00ff88;
-            border: none;
-            border-radius: 25px;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .chat-input button:hover {
-            background: #00cc6a;
-            transform: scale(1.05);
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .modal {
-            background: #1a1a1a;
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
-        }
-
-        .modal h3 {
-            color: #00ff88;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .modal input, .modal textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .modal input:focus, .modal textarea:focus {
-            outline: none;
-            border-color: #00ff88;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .modal-buttons button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary { background: #00ff88; color: #000; }
-        .btn-secondary { background: #333; color: #fff; }
-        .btn-danger { background: #ff4444; color: #fff; }
-        .btn-success { background: #00ff88; color: #000; }
-
-        .notification-bell {
-            position: relative;
-            cursor: pointer;
-            padding: 5px;
-            font-size: 20px;
-        }
-
-        .notification-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff4444;
-            color: #fff;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .notification-panel {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 350px;
-            height: 100%;
-            background: #111;
-            border-left: 1px solid #222;
-            z-index: 1500;
-            transition: right 0.3s;
-            overflow-y: auto;
-        }
-
-        .notification-panel.open {
-            right: 0;
-        }
-
-        .notification-panel-header {
-            padding: 20px;
-            background: #0a0a0a;
-            border-bottom: 1px solid #222;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .notification-panel-header h3 {
-            color: #00ff88;
-        }
-
-        .close-panel {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .notification-item {
-            padding: 15px;
-            border-bottom: 1px solid #222;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .notification-item:hover {
-            background: #1a1a1a;
-        }
-
-        .notification-item.unread {
-            border-left: 3px solid #00ff88;
-        }
-
-        .notification-item h4 {
-            color: #fff;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .notification-item p {
-            color: #888;
-            font-size: 12px;
-        }
-
-        .notification-item .time {
-            color: #666;
-            font-size: 10px;
-            margin-top: 5px;
-        }
-
-        .search-result {
-            padding: 12px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .search-result-info h4 {
-            color: #fff;
-            margin-bottom: 3px;
-        }
-
-        .search-result-info p {
-            color: #888;
-            font-size: 11px;
-        }
-
-        .join-btn {
-            padding: 8px 15px;
-            background: #00ff88;
-            border: none;
-            border-radius: 6px;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .join-btn:disabled {
-            background: #333;
-            color: #888;
-            cursor: not-allowed;
-        }
-
-        .request-item {
-            padding: 12px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .request-actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .request-actions button {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .member-item {
-            padding: 10px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .member-item .member-name {
-            color: #fff;
-        }
-
-        .member-item .member-role {
-            color: #00ff88;
-            font-size: 11px;
-        }
-
-        .hidden { display: none !important; }
-        .error-msg { color: #ff4444; font-size: 12px; margin-top: 10px; }
-        .success-msg { color: #00ff88; font-size: 12px; margin-top: 10px; }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #00ff88; }
-
-        .empty-state {
-            text-align: center;
-            color: #888;
-            padding: 40px;
-        }
-
-        .empty-state .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secret-x | Private Chat</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <!-- Auth Modal -->
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-card">
-            <h2>🔐 Secret X</h2>
-            <div id="loginForm">
-                <input type="email" id="loginEmail" placeholder="Email">
-                <input type="password" id="loginPassword" placeholder="Password">
-                <button onclick="login()">Login</button>
-                <p class="error-msg" id="loginError"></p>
-                <p class="auth-toggle">Account nahi hai? <span onclick="toggleAuth()">Register</span></p>
-            </div>
-            <div id="registerForm" class="hidden">
-                <input type="text" id="regName" placeholder="Name">
-                <input type="email" id="regEmail" placeholder="Email">
-                <input type="password" id="regPassword" placeholder="Password">
-                <button onclick="register()">Register</button>
-                <p class="error-msg" id="regError"></p>
-                <p class="success-msg" id="regSuccess"></p>
-                <p class="auth-toggle">Account hai? <span onclick="toggleAuth()">Login</span></p>
-            </div>
+
+  <!-- ==================== AUTH SCREEN ==================== -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-container">
+      <div class="auth-logo">
+        <span class="logo-icon">🔒</span>
+        <h1>Secret-x</h1>
+        <p class="tagline">Private. Secure. Yours.</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form active">
+        <h2>Login</h2>
+        <div class="input-group">
+          <input type="email" id="login-email" placeholder="Email" required />
         </div>
+        <div class="input-group">
+          <input type="password" id="login-password" placeholder="Password" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <p class="auth-switch">Account nahi hai? <a href="#" id="show-register">Register karo</a></p>
+        <p id="login-error" class="error-msg"></p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form">
+        <h2>Register</h2>
+        <div class="input-group">
+          <input type="text" id="reg-username" placeholder="Username" required />
+        </div>
+        <div class="input-group">
+          <input type="email" id="reg-email" placeholder="Email" required />
+        </div>
+        <div class="input-group">
+          <input type="password" id="reg-password" placeholder="Password (min 6 chars)" required minlength="6" />
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+        <p class="auth-switch">Already account hai? <a href="#" id="show-login">Login karo</a></p>
+        <p id="register-error" class="error-msg"></p>
+      </form>
     </div>
+  </div>
 
-    <!-- Main App -->
-    <div class="app-container hidden" id="appContainer">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="user-info-bar">
-                    <h3>🔐 Secret X</h3>
-                    <div class="notification-bell" onclick="toggleNotifications()">
-                        🔔<span class="notification-count hidden" id="notifCount">0</span>
-                    </div>
-                </div>
-                <div class="user-details">
-                    <div id="userName"></div>
-                    <div class="role-badge" id="userRole"></div>
-                </div>
-                <div class="sidebar-actions">
-                    <button class="action-btn active" id="btnChats" onclick="showSection('chats')">💬 Chats</button>
-                    <button class="action-btn" id="btnGroups" onclick="showSection('groups')">🔍 Groups</button>
-                    <button class="action-btn" id="btnNew" onclick="showCreateGroup()"> New</button>
-                </div>
-            </div>
+  <!-- ==================== MAIN APP SCREEN ==================== -->
+  <div id="app-screen" class="screen">
 
-            <div class="search-box hidden" id="searchBox">
-                <input type="text" id="groupSearch" placeholder="Search groups..." oninput="searchGroups()">
-            </div>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>🔒 Secret-x</h2>
+        <div class="sidebar-actions">
+          <button id="btn-new-group" class="icon-btn" title="New Group">👥</button>
+          <button id="btn-logout" class="icon-btn" title="Logout">🚪</button>
+        </div>
+      </div>
 
-            <div class="chat-list" id="chatList"></div>
+      <!-- User Info -->
+      <div class="user-info">
+        <div class="avatar" id="my-avatar">U</div>
+        <span id="my-username">User</span>
+        <span class="status-dot online"></span>
+      </div>
+
+      <!-- Search -->
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="🔍 Search chats..." />
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="chats">💬 Chats</button>
+        <button class="tab" data-tab="groups">👥 Groups</button>
+      </div>
+
+      <!-- Chat List -->
+      <div id="chat-list" class="chat-list active-tab-content">
+        <p class="empty-msg">Koi chat nahi hai. Neeche se start karo!</p>
+      </div>
+
+      <!-- Group List -->
+      <div id="group-list" class="chat-list tab-content">
+        <p class="empty-msg">Koi group nahi hai. Upar 👥 dabao!</p>
+      </div>
+
+      <!-- New Chat -->
+      <div class="new-chat-area">
+        <input type="email" id="new-chat-email" placeholder="Email se user dhundo..." />
+        <button id="btn-start-chat" class="btn btn-small">Start Chat</button>
+      </div>
+    </aside>
+
+    <!-- Chat Area -->
+    <main class="chat-area">
+      <!-- No Chat Selected -->
+      <div id="no-chat" class="no-chat">
+        <span class="big-icon">💬</span>
+        <h2>Secret-x mein welcome!</h2>
+        <p>Left side se chat ya group select karo</p>
+      </div>
+
+      <!-- Active Chat -->
+      <div id="active-chat" class="active-chat hidden">
+        <div class="chat-header">
+          <button id="btn-back" class="icon-btn mobile-only">⬅️</button>
+          <div class="avatar" id="chat-avatar">U</div>
+          <div class="chat-header-info">
+            <h3 id="chat-name">Chat Name</h3>
+            <span id="chat-status" class="chat-status">Online</span>
+          </div>
         </div>
 
-        <div class="chat-area">
-            <div class="chat-header">
-                <div class="chat-avatar" id="chatAvatar">?</div>
-                <div class="chat-header-info">
-                    <h3 id="chatTitle">Select a chat</h3>
-                    <p id="chatSubtitle"></p>
-                </div>
-                <div class="header-actions" id="headerActions"></div>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="empty-state">
-                    <div class="icon">💬</div>
-                    <p>Chat select karo messages dekhne ke liye</p>
-                </div>
-            </div>
-            <div class="chat-input hidden" id="chatInput">
-                <input type="text" id="messageInput" placeholder="Type a message...">
-                <button onclick="sendMessage()">Send</button>
-            </div>
+        <div id="messages-container" class="messages-container">
+          <!-- Messages will load here -->
         </div>
+
+        <div class="message-input-area">
+          <input type="text" id="message-input" placeholder="Type a message..." />
+          <button id="btn-send" class="btn btn-send">➤</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+  <!-- New Group Modal -->
+  <div id="group-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Naya Group Banao</h3>
+      <div class="input-group">
+        <input type="text" id="group-name-input" placeholder="Group ka naam" />
+      </div>
+      <div class="input-group">
+        <input type="email" id="group-members-input" placeholder="Members ke emails (comma separated)" />
+      </div>
+      <div class="modal-actions">
+        <button id="btn-create-group" class="btn btn-primary">Create</button>
+        <button id="btn-cancel-group" class="btn btn-secondary">Cancel</button>
+      </div>
     </div>
-
-    <!-- Notification Panel -->
-    <div class="notification-panel" id="notificationPanel">
-        <div class="notification-panel-header">
-            <h3>🔔 Notifications</h3>
-            <button class="close-panel" onclick="toggleNotifications()">×</button>
-        </div>
-        <div id="notificationList"></div>
-    </div>
-
-    <!-- Create Group Modal -->
-    <div class="modal-overlay hidden" id="createGroupModal">
-        <div class="modal">
-            <h3>➕ Create New Group</h3>
-            <input type="text" id="newGroupName" placeholder="Group Name">
-            <textarea id="newGroupDesc" placeholder="Group Description (optional)" rows="3"></textarea>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('createGroupModal')">Cancel</button>
-                <button class="btn-primary" onclick="createGroup()">Create</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Group Info Modal -->
-    <div class="modal-overlay hidden" id="groupInfoModal">
-        <div class="modal">
-            <h3>👥 Group Info</h3>
-            <div id="groupMembersList"></div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('groupInfoModal')">Close</button>
-                <button class="btn-danger" id="leaveGroupBtn" onclick="leaveGroup()">Leave Group</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Requests Modal -->
-    <div class="modal-overlay hidden" id="adminRequestsModal">
-        <div class="modal">
-            <h3> Join Requests</h3>
-            <div id="requestsList"></div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('adminRequestsModal')">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCX9myU2sx-LCyGAUsKuVEOJJXo7jhurdg",
-            authDomain: "secret-x-c3045.firebaseapp.com",
-            projectId: "secret-x-c3045",
-            storageBucket: "secret-x-c3045.firebasestorage.app",
-            messagingSenderId: "116252360970",
-            appId: "1:116252360970:web:98622eb77bf5646c89baf3"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        let currentUser = null;
-        let currentRole = 'member';
-        let currentChat = null;
-        let currentSection = 'chats';
-        let myGroups = [];
-        let unreadMessages = {};
-        let notifications = [];
-        let messagesListener = null;
-
-        function toggleAuth() {
-            document.getElementById('loginForm').classList.toggle('hidden');
-            document.getElementById('registerForm').classList.toggle('hidden');
-            clearErrors();
-        }
-
-        function clearErrors() {
-            document.getElementById('loginError').textContent = '';
-            document.getElementById('regError').textContent = '';
-            document.getElementById('regSuccess').textContent = '';
-        }
-
-        async function register() {
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-
-            if (!name || !email || !password) {
-                document.getElementById('regError').textContent = 'Sab fields bharo!';
-                return;
-            }
-
-            if (password.length < 6) {
-                document.getElementById('regError').textContent = 'Password 6 characters se bada hona chahiye!';
-                return;
-            }
-
-            try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                await db.collection('users').doc(user.uid).set({
-                    name: name,
-                    email: email,
-                    role: 'member',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                document.getElementById('regSuccess').textContent = 'Registration successful! Login karo.';
-                setTimeout(() => {
-                    toggleAuth();
-                }, 1500);
-            } catch (error) {
-                document.getElementById('regError').textContent = error.message;
-            }
-        }
-
-        async function login() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-            } catch (error) {
-                document.getElementById('loginError').textContent = error.message;
-            }
-        }
-
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    currentRole = userData.role || 'member';
-
-                    document.getElementById('authOverlay').classList.add('hidden');
-                    document.getElementById('appContainer').classList.remove('hidden');
-                    document.getElementById('userName').textContent = userData.name;
-                    document.getElementById('userRole').textContent = currentRole.toUpperCase();
-
-                    loadMyGroups();
-                    loadNotifications();
-                }
-            } else {
-                currentUser = null;
-                document.getElementById('authOverlay').classList.remove('hidden');
-                document.getElementById('appContainer').classList.add('hidden');
-            }
-        });
-
-        async function loadMyGroups() {
-            try {
-                const groupsRef = db.collection('groups');
-                const query1 = groupsRef.where('members', 'array-contains', currentUser.uid);
-                const query2 = groupsRef.where('admin', '==', currentUser.uid);
-
-                const [snap1, snap2] = await Promise.all([query1.get(), query2.get()]);
-                
-                const groupsMap = new Map();
-                snap1.forEach(doc => groupsMap.set(doc.id, doc.data()));
-                snap2.forEach(doc => groupsMap.set(doc.id, doc.data()));
-
-                myGroups = Array.from(groupsMap.entries()).map(([id, data]) => ({ id, ...data }));
-                
-                if (currentSection === 'chats') {
-                    renderChats();
-                }
-            } catch (error) {
-                console.error('Error loading groups:', error);
-            }
-        }
-
-        function renderChats() {
-            const chatList = document.getElementById('chatList');
-            chatList.innerHTML = '';
-
-            if (myGroups.length === 0) {
-                chatList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">🔍</div>
-                        <p>Koi group nahi mila</p>
-                        <p style="font-size: 12px; margin-top: 10px;">Groups section mein jao aur join karo</p>
-                    </div>
-                `;
-                return;
-            }
-
-            myGroups.forEach(group => {
-                const div = document.createElement('div');
-                div.className = 'chat-item';
-                div.onclick = () => openChat(group, div);
-                
-                const unread = unreadMessages[group.id] || 0;
-                
-                div.innerHTML = `
-                    <div class="chat-avatar">${group.name[0].toUpperCase()}</div>
-                    <div class="chat-details">
-                        <h4>${group.name}</h4>
-                        <p>${group.description || 'Group chat'} • ${group.members?.length || 0} members</p>
-                    </div>
-                    ${unread > 0 ? `<div class="unread-badge">${unread}</div>` : ''}
-                `;
-                chatList.appendChild(div);
-            });
-        }
-
-        function showSection(section) {
-            currentSection = section;
-            
-            // Reset all buttons
-            document.getElementById('btnChats').classList.remove('active');
-            document.getElementById('btnGroups').classList.remove('active');
-            
-            if (section === 'chats') {
-                document.getElementById('btnChats').classList.add('active');
-                document.getElementById('searchBox').classList.add('hidden');
-                renderChats();
-            } else if (section === 'groups') {
-                document.getElementById('btnGroups').classList.add('active');
-                document.getElementById('searchBox').classList.remove('hidden');
-                searchGroups();
-            }
-        }
-
-        async function searchGroups() {
-            const query = document.getElementById('groupSearch').value.toLowerCase().trim();
-            const chatList = document.getElementById('chatList');
-            chatList.innerHTML = '';
-
-            try {
-                let snapshot;
-                if (query) {
-                    snapshot = await db.collection('groups')
-                        .where('nameLower', '>=', query)
-                        .where('nameLower', '<=', query + '\uf8ff')
-                        .get();
-                } else {
-                    snapshot = await db.collection('groups').get();
-                }
-                
-                if (snapshot.empty) {
-                    chatList.innerHTML = `
-                        <div class="empty-state">
-                            <div class="icon">🔍</div>
-                            <p>Koi group nahi mila</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                snapshot.forEach(doc => {
-                    const group = doc.data();
-                    const isMember = group.members?.includes(currentUser.uid);
-                    const isPending = group.pendingRequests?.includes(currentUser.uid);
-                    const isAdmin = group.admin === currentUser.uid;
-
-                    const div = document.createElement('div');
-                    div.className = 'search-result';
-                    
-                    let buttonHtml = '';
-                    if (isAdmin) {
-                        buttonHtml = '<button class="join-btn" disabled>Admin</button>';
-                    } else if (isMember) {
-                        buttonHtml = '<button class="join-btn" disabled>Joined</button>';
-                    } else if (isPending) {
-                        buttonHtml = '<button class="join-btn" disabled>Pending</button>';
-                    } else {
-                        buttonHtml = `<button class="join-btn" onclick="requestJoin('${doc.id}')">Join Request</button>`;
-                    }
-
-                    div.innerHTML = `
-                        <div class="search-result-info">
-                            <h4>${group.name}</h4>
-                            <p>${group.description || 'No description'} • ${group.members?.length || 0} members</p>
-                        </div>
-                        ${buttonHtml}
-                    `;
-                    chatList.appendChild(div);
-                });
-            } catch (error) {
-                console.error('Search error:', error);
-                chatList.innerHTML = `<div class="empty-state"><p>Error: ${error.message}</p></div>`;
-            }
-        }
-
-        async function requestJoin(groupId) {
-            try {
-                await db.collection('groups').doc(groupId).update({
-                    pendingRequests: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-                });
-
-                const groupDoc = await db.collection('groups').doc(groupId).get();
-                const group = groupDoc.data();
-
-                await db.collection('notifications').add({
-                    userId: group.admin,
-                    type: 'join_request',
-                    title: 'New Join Request',
-                    message: `${document.getElementById('userName').textContent} wants to join ${group.name}`,
-                    groupId: groupId,
-                    requesterId: currentUser.uid,
-                    read: false,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                alert('Join request bhej diya! Admin approve karega.');
-                searchGroups();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        function showCreateGroup() {
-            document.getElementById('createGroupModal').classList.remove('hidden');
-        }
-
-        async function createGroup() {
-            const name = document.getElementById('newGroupName').value.trim();
-            const description = document.getElementById('newGroupDesc').value.trim();
-
-            if (!name) {
-                alert('Group name daalo!');
-                return;
-            }
-
-            try {
-                await db.collection('groups').add({
-                    name: name,
-                    nameLower: name.toLowerCase(),
-                    description: description,
-                    admin: currentUser.uid,
-                    members: [currentUser.uid],
-                    pendingRequests: [],
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                closeModal('createGroupModal');
-                document.getElementById('newGroupName').value = '';
-                document.getElementById('newGroupDesc').value = '';
-                
-                await loadMyGroups();
-                showSection('chats');
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        function openChat(group, element) {
-            currentChat = group;
-            document.getElementById('chatTitle').textContent = group.name;
-            document.getElementById('chatSubtitle').textContent = `${group.members?.length || 0} members`;
-            document.getElementById('chatAvatar').textContent = group.name[0].toUpperCase();
-            document.getElementById('chatInput').classList.remove('hidden');
-
-            if (element) {
-                document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
-                element.classList.add('active');
-            }
-
-            const headerActions = document.getElementById('headerActions');
-            const isGroupAdmin = group.admin === currentUser.uid;
-            headerActions.innerHTML = `
-                <button class="header-btn" onclick="showGroupInfo()">👥 Info</button>
-                ${isGroupAdmin ? `<button class="header-btn" onclick="showAdminRequests()">📋 Requests</button>` : ''}
-            `;
-
-            unreadMessages[group.id] = 0;
-            renderChats();
-
-            loadMessages(group.id);
-        }
-
-        function loadMessages(groupId) {
-            if (messagesListener) {
-                messagesListener();
-            }
-
-            const messagesDiv = document.getElementById('chatMessages');
-            messagesDiv.innerHTML = '';
-
-            messagesListener = db.collection('groups').doc(groupId).collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snapshot => {
-                    messagesDiv.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const msg = doc.data();
-                        const div = document.createElement('div');
-                        
-                        if (msg.type === 'system') {
-                            div.className = 'system-message';
-                            div.textContent = msg.text;
-                        } else {
-                            div.className = `message ${msg.senderId === currentUser.uid ? 'sent' : 'received'}`;
-                            div.innerHTML = `
-                                ${msg.senderId !== currentUser.uid ? `<div class="message-sender">${msg.senderName}</div>` : ''}
-                                <div class="message-text">${msg.text}</div>
-                                <div class="message-time">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString() : ''}</div>
-                            `;
-                        }
-                        messagesDiv.appendChild(div);
-                    });
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                }, error => {
-                    console.error('Messages error:', error);
-                });
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-
-            if (!text || !currentChat) return;
-
-            try {
-                await db.collection('groups').doc(currentChat.id).collection('messages').add({
-                    text: text,
-                    senderId: currentUser.uid,
-                    senderName: document.getElementById('userName').textContent,
-                    type: 'message',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                input.value = '';
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function showGroupInfo() {
-            if (!currentChat) return;
-
-            try {
-                const groupDoc = await db.collection('groups').doc(currentChat.id).get();
-                const group = groupDoc.data();
-
-                const membersList = document.getElementById('groupMembersList');
-                membersList.innerHTML = '';
-
-                const memberIds = group.members || [];
-                for (const memberId of memberIds) {
-                    const userDoc = await db.collection('users').doc(memberId).get();
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
-                        const isAdmin = group.admin === memberId;
-                        
-                        const div = document.createElement('div');
-                        div.className = 'member-item';
-                        div.innerHTML = `
-                            <div>
-                                <div class="member-name">${userData.name} ${isAdmin ? '👑' : ''}</div>
-                                <div class="member-role">${isAdmin ? 'Admin' : 'Member'}</div>
-                            </div>
-                        `;
-                        membersList.appendChild(div);
-                    }
-                }
-
-                const leaveBtn = document.getElementById('leaveGroupBtn');
-                if (group.admin === currentUser.uid) {
-                    leaveBtn.classList.add('hidden');
-                } else {
-                    leaveBtn.classList.remove('hidden');
-                }
-
-                document.getElementById('groupInfoModal').classList.remove('hidden');
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function leaveGroup() {
-            if (!currentChat) return;
-
-            if (!confirm('Kya aap sach mein group chhodna chahte ho?')) return;
-
-            try {
-                await db.collection('groups').doc(currentChat.id).update({
-                    members: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
-                });
-
-                await db.collection('groups').doc(currentChat.id).collection('messages').add({
-                    text: `${document.getElementById('userName').textContent} left the group`,
-                    type: 'system',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                closeModal('groupInfoModal');
-                await loadMyGroups();
-                currentChat = null;
-                document.getElementById('chatTitle').textContent = 'Select a chat';
-                document.getElementById('chatSubtitle').textContent = '';
-                document.getElementById('chatInput').classList.add('hidden');
-                document.getElementById('chatMessages').innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">💬</div>
-                        <p>Chat select karo messages dekhne ke liye</p>
-                    </div>
-                `;
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function showAdminRequests() {
-            if (!currentChat) return;
-
-            try {
-                const groupDoc = await db.collection('groups').doc(currentChat.id).get();
-                const group = groupDoc.data();
-
-                const requestsList = document.getElementById('requestsList');
-                requestsList.innerHTML = '';
-
-                const pendingRequests = group.pendingRequests || [];
-
-                if (pendingRequests.length === 0) {
-                    requestsList.innerHTML = '<div class="empty-state"><p>Koi pending request nahi hai</p></div>';
-                } else {
-                    for (const requesterId of pendingRequests) {
-                        const userDoc = await db.collection('users').doc(requesterId).get();
-                        if (userDoc.exists) {
-                            const userData = userDoc.data();
-                            const div = document.createElement('div');
-                            div.className = 'request-item';
-                            div.innerHTML = `
-                                <div>
-                                    <div class="member-name">${userData.name}</div>
-                                    <div class="member-role">${userData.email}</div>
-                                </div>
-                                <div class="request-actions">
-                                    <button class="btn-success" onclick="acceptRequest('${currentChat.id}', '${requesterId}')">Accept</button>
-                                    <button class="btn-danger" onclick="rejectRequest('${currentChat.id}', '${requesterId}')">Reject</button>
-                                </div>
-                            `;
-                            requestsList.appendChild(div);
-                        }
-                    }
-                }
-
-                document.getElementById('adminRequestsModal').classList.remove('hidden');
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function acceptRequest(groupId, requesterId) {
-            try {
-                await db.collection('groups').doc(groupId).update({
-                    members: firebase.firestore.FieldValue.arrayUnion(requesterId),
-                    pendingRequests: firebase.firestore.FieldValue.arrayRemove(requesterId)
-                });
-
-                const requesterDoc = await db.collection('users').doc(requesterId).get();
-                await db.collection('groups').doc(groupId).collection('messages').add({
-                    text: `${requesterDoc.data().name} joined the group`,
-                    type: 'system',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                await db.collection('notifications').add({
-                    userId: requesterId,
-                    type: 'request_accepted',
-                    title: 'Request Accepted',
-                    message: `Aapki join request accept ho gayi!`,
-                    groupId: groupId,
-                    read: false,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                showAdminRequests();
-                await loadMyGroups();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function rejectRequest(groupId, requesterId) {
-            try {
-                await db.collection('groups').doc(groupId).update({
-                    pendingRequests: firebase.firestore.FieldValue.arrayRemove(requesterId)
-                });
-
-                await db.collection('notifications').add({
-                    userId: requesterId,
-                    type: 'request_rejected',
-                    title: 'Request Rejected',
-                    message: `Aapki join request reject ho gayi.`,
-                    groupId: groupId,
-                    read: false,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                showAdminRequests();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        function loadNotifications() {
-            db.collection('notifications')
-                .where('userId', '==', currentUser.uid)
-                .orderBy('createdAt', 'desc')
-                .onSnapshot(snapshot => {
-                    notifications = [];
-                    let unreadCount = 0;
-                    
-                    snapshot.forEach(doc => {
-                        const notif = { id: doc.id, ...doc.data() };
-                        notifications.push(notif);
-                        if (!notif.read) unreadCount++;
-                    });
-
-                    const badge = document.getElementById('notifCount');
-                    if (unreadCount > 0) {
-                        badge.textContent = unreadCount;
-                        badge.classList.remove('hidden');
-                    } else {
-                        badge.classList.add('hidden');
-                    }
-
-                    renderNotifications();
-                }, error => {
-                    console.error('Notifications error:', error);
-                });
-        }
-
-        function renderNotifications() {
-            const list = document.getElementById('notificationList');
-            list.innerHTML = '';
-
-            if (notifications.length === 0) {
-                list.innerHTML = '<div class="empty-state"><p>Koi notification nahi hai</p></div>';
-                return;
-            }
-
-            notifications.forEach(notif => {
-                const div = document.createElement('div');
-                div.className = `notification-item ${!notif.read ? 'unread' : ''}`;
-                div.onclick = () => handleNotification(notif);
-                div.innerHTML = `
-                    <h4>${notif.title}</h4>
-                    <p>${notif.message}</p>
-                    <div class="time">${notif.createdAt ? new Date(notif.createdAt.toDate()).toLocaleString() : ''}</div>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        async function handleNotification(notif) {
-            await db.collection('notifications').doc(notif.id).update({ read: true });
-
-            if (notif.groupId) {
-                const groupDoc = await db.collection('groups').doc(notif.groupId).get();
-                if (groupDoc.exists) {
-                    const group = { id: notif.groupId, ...groupDoc.data() };
-                    openChat(group);
-                }
-            }
-
-            toggleNotifications();
-        }
-
-        function toggleNotifications() {
-            document.getElementById('notificationPanel').classList.toggle('open');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        document.getElementById('messageInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
-        });
-    </script>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/groups.js"></script>
 </body>
 </html>
