@@ -1,11 +1,11 @@
 // ============================================
-// 💬 CHAT MODULE (v2 - FIXED + NOTIFICATIONS)
+// 💬 CHAT MODULE (v3 - GROUP NOTIFICATIONS FIXED)
 // ============================================
 
 let activeChatId = null;
 let activeChatType = 'direct';
 let unsubscribeMessages = null;
-let unreadCount = 0;
+let unsubscribeNotifs = null;
 
 const chatListEl = document.getElementById('chat-list');
 const noChatEl = document.getElementById('no-chat');
@@ -16,6 +16,9 @@ const btnSend = document.getElementById('btn-send');
 const chatNameEl = document.getElementById('chat-name');
 const chatAvatarEl = document.getElementById('chat-avatar');
 const chatStatusEl = document.getElementById('chat-status');
+const notifBadge = document.getElementById('notif-badge');
+const notifModal = document.getElementById('notif-modal');
+const notifList = document.getElementById('notif-list');
 
 // ---- Tabs ----
 document.querySelectorAll('.tab').forEach(tab => {
@@ -28,11 +31,141 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
+// ---- Notifications Bell ----
+document.getElementById('btn-notifications').addEventListener('click', () => {
+  notifModal.classList.remove('hidden');
+  loadNotifications();
+});
+
+document.getElementById('btn-close-notif').addEventListener('click', () => {
+  notifModal.classList.add('hidden');
+});
+
+notifModal.addEventListener('click', (e) => {
+  if (e.target === notifModal) notifModal.classList.add('hidden');
+});
+
+function loadNotifications() {
+  if (!currentUser) return;
+
+  if (unsubscribeNotifs) unsubscribeNotifs();
+
+  notifList.innerHTML = '<div class="spinner"></div>';
+
+  // Get notifications from chats and groups
+  const allNotifs = [];
+
+  // Chats notifications
+  db.collection('chats')
+    .where('participants', 'array-contains', currentUser.uid)
+    .onSnapshot((snapshot) => {
+      notifList.innerHTML = '';
+      let hasNotifs = false;
+
+      snapshot.forEach(doc => {
+        const chat = doc.data();
+        const unread = chat.unreadCount && chat.unreadCount[currentUser.uid] ? chat.unreadCount[currentUser.uid] : 0;
+        
+        if (unread > 0) {
+          hasNotifs = true;
+          const otherUserId = chat.participants.find(p => p !== currentUser.uid);
+          const otherUser = chat.participantData ? chat.participantData[otherUserId] : null;
+          const name = (otherUser && otherUser.username) ? otherUser.username : 'Unknown';
+          
+          const item = document.createElement('div');
+          item.className = 'notif-item unread';
+          item.innerHTML = `
+            <span class="notif-icon">💬</span>
+            <div class="notif-content">
+              <h4>${escapeHtml(name)}</h4>
+              <p>${unread} naye message</p>
+            </div>
+            <span class="notif-time">${escapeHtml(chat.lastMessage || '')}</span>
+          `;
+          item.addEventListener('click', () => {
+            notifModal.classList.add('hidden');
+            openChat(doc.id, 'direct', name);
+          });
+          notifList.appendChild(item);
+        }
+      });
+
+      // Groups notifications
+      db.collection('groups')
+        .where('members', 'array-contains', currentUser.uid)
+        .onSnapshot((groupSnap) => {
+          groupSnap.forEach(doc => {
+            const group = doc.data();
+            const unread = group.unreadCount && group.unreadCount[currentUser.uid] ? group.unreadCount[currentUser.uid] : 0;
+            
+            if (unread > 0) {
+              hasNotifs = true;
+              const item = document.createElement('div');
+              item.className = 'notif-item unread';
+              item.innerHTML = `
+                <span class="notif-icon">👥</span>
+                <div class="notif-content">
+                  <h4>${escapeHtml(group.name)}</h4>
+                  <p>${unread} naye messages</p>
+                </div>
+                <span class="notif-time">${escapeHtml(group.lastMessage || '')}</span>
+              `;
+              item.addEventListener('click', () => {
+                notifModal.classList.add('hidden');
+                if (typeof openGroupChat === 'function') openGroupChat(doc.id, group);
+              });
+              notifList.appendChild(item);
+            }
+          });
+
+          if (!hasNotifs) {
+            notifList.innerHTML = '<p class="empty-msg">Koi notification nahi hai ✅</p>';
+          }
+        });
+    });
+}
+
+// ---- Update Notification Badge ----
+function updateNotifBadge() {
+  if (!currentUser) return;
+
+  let totalUnread = 0;
+
+  db.collection('chats')
+    .where('participants', 'array-contains', currentUser.uid)
+    .onSnapshot((snapshot) => {
+      totalUnread = 0;
+      snapshot.forEach(doc => {
+        const chat = doc.data();
+        const unread = chat.unreadCount && chat.unreadCount[currentUser.uid] ? chat.unreadCount[currentUser.uid] : 0;
+        totalUnread += unread;
+      });
+
+      // Add groups unread
+      db.collection('groups')
+        .where('members', 'array-contains', currentUser.uid)
+        .onSnapshot((groupSnap) => {
+          groupSnap.forEach(doc => {
+            const group = doc.data();
+            const unread = group.unreadCount && group.unreadCount[currentUser.uid] ? group.unreadCount[currentUser.uid] : 0;
+            totalUnread += unread;
+          });
+
+          if (totalUnread > 0) {
+            notifBadge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+            notifBadge.classList.remove('hidden');
+          } else {
+            notifBadge.classList.add('hidden');
+          }
+        });
+    });
+}
+
 // ---- Start New Chat ----
 document.getElementById('btn-start-chat').addEventListener('click', async () => {
   const email = document.getElementById('new-chat-email').value.trim();
   if (!email) { alert('Email daalo!'); return; }
-  if (email === currentUserData.email) { alert('Khud se chat nahi kar sakte! '); return; }
+  if (email === currentUserData.email) { alert('Khud se chat nahi kar sakte! 😄'); return; }
 
   try {
     const usersSnap = await db.collection('users').where('email', '==', email).get();
@@ -78,9 +211,12 @@ function getChatId(uid1, uid2) {
   return [uid1, uid2].sort().join('_');
 }
 
-// ---- Load Chats (FIXED null toDate) ----
+// ---- Load Chats ----
 function loadChats() {
   if (!currentUser) return;
+
+  // Start notification badge listener
+  updateNotifBadge();
 
   db.collection('chats')
     .where('participants', 'array-contains', currentUser.uid)
@@ -106,15 +242,13 @@ function loadChats() {
         const otherUser = chat.participantData ? chat.participantData[otherUserId] : null;
         const name = (otherUser && otherUser.username) ? otherUser.username : 'Unknown';
         const initial = name.charAt(0).toUpperCase();
-        const lastMsg = chat.lastMessage || 'Naya chat';
+        const lastMsg = chat.lastMessage || 'Naya chat shuru karo';
 
-        // Safe time formatting
         let time = '';
         if (chat.lastMessageTime) {
           try { time = formatTime(chat.lastMessageTime.toDate()); } catch(e) { time = ''; }
         }
 
-        // Unread count
         const unread = chat.unreadCount && chat.unreadCount[currentUser.uid] ? chat.unreadCount[currentUser.uid] : 0;
         const unreadBadge = unread > 0 ? `<span class="unread-badge">${unread}</span>` : '';
 
@@ -133,9 +267,6 @@ function loadChats() {
       });
     }, (err) => {
       console.error('Chats load error:', err);
-      if (err.code === 'permission-denied') {
-        chatListEl.innerHTML = '<p class="empty-msg">⚠️ Permission denied. Firestore Rules check karo!</p>';
-      }
     });
 }
 
@@ -151,6 +282,10 @@ function openChat(chatId, type, name) {
   chatStatusEl.textContent = type === 'direct' ? 'Online' : 'Group';
 
   document.getElementById('app-screen').classList.add('chat-open');
+
+  // Remove old settings button
+  const oldBtn = document.getElementById('btn-group-settings');
+  if (oldBtn) oldBtn.remove();
 
   if (unsubscribeMessages) unsubscribeMessages();
 
@@ -194,9 +329,13 @@ function openChat(chatId, type, name) {
 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-      // Reset unread count
+      // Reset unread count for this chat
       if (type === 'direct') {
         db.collection('chats').doc(chatId).update({
+          [`unreadCount.${currentUser.uid}`]: 0
+        }).catch(() => {});
+      } else if (type === 'group') {
+        db.collection('groups').doc(chatId).update({
           [`unreadCount.${currentUser.uid}`]: 0
         }).catch(() => {});
       }
@@ -231,11 +370,21 @@ async function sendMessage() {
       lastMessageTime: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // Increment unread for other participants
     if (activeChatType === 'direct') {
       const chatDoc = await db.collection('chats').doc(activeChatId).get();
       const otherUserId = chatDoc.data().participants.find(p => p !== currentUser.uid);
       updateData[`unreadCount.${otherUserId}`] = firebase.firestore.FieldValue.increment(1);
+    } else if (activeChatType === 'group') {
+      // Increment unread for all members except sender
+      const groupDoc = await db.collection('groups').doc(activeChatId).get();
+      const members = groupDoc.data().members || [];
+      const unreadUpdates = {};
+      members.forEach(memberId => {
+        if (memberId !== currentUser.uid) {
+          unreadUpdates[`unreadCount.${memberId}`] = firebase.firestore.FieldValue.increment(1);
+        }
+      });
+      Object.assign(updateData, unreadUpdates);
     }
 
     await db.collection(collection).doc(activeChatId).update(updateData);
@@ -262,7 +411,6 @@ document.getElementById('search-input').addEventListener('input', (e) => {
   });
 });
 
-// ---- Utilities ----
 function formatTime(date) {
   if (!date) return '';
   const now = new Date();
