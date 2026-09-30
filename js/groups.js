@@ -1,11 +1,10 @@
 // ============================================
-// 👥 GROUPS MODULE
+//  GROUPS MODULE (FIXED)
 // ============================================
 
 const groupListEl = document.getElementById('group-list');
 const groupModal = document.getElementById('group-modal');
 
-// ---- Open/Close Modal ----
 document.getElementById('btn-new-group').addEventListener('click', () => {
   groupModal.classList.remove('hidden');
 });
@@ -16,7 +15,6 @@ document.getElementById('btn-cancel-group').addEventListener('click', () => {
   document.getElementById('group-members-input').value = '';
 });
 
-// Close modal on backdrop click
 groupModal.addEventListener('click', (e) => {
   if (e.target === groupModal) {
     groupModal.classList.add('hidden');
@@ -34,18 +32,16 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
   }
 
   try {
-    // Parse member emails
     const memberEmails = membersInput
       .split(',')
       .map(e => e.trim())
       .filter(e => e.length > 0);
 
-    // Fetch member UIDs
     const memberIds = [currentUser.uid];
     const memberData = {
       [currentUser.uid]: {
-        username: currentUserData.username,
-        email: currentUserData.email
+        username: currentUserData.username || 'User',
+        email: currentUserData.email || ''
       }
     };
 
@@ -55,13 +51,14 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
         const userDoc = userSnap.docs[0];
         if (!memberIds.includes(userDoc.id)) {
           memberIds.push(userDoc.id);
+          const uData = userDoc.data();
           memberData[userDoc.id] = {
-            username: userDoc.data().username,
-            email: userDoc.data().email
+            username: uData.username || uData.email || email,
+            email: uData.email || email
           };
         }
       } else {
-        console.warn(`User ${email} not found, skipping.`);
+        console.warn(`User ${email} not found`);
       }
     }
 
@@ -70,7 +67,6 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
       return;
     }
 
-    // Create group
     const groupRef = await db.collection('groups').add({
       name: groupName,
       createdBy: currentUser.uid,
@@ -82,25 +78,22 @@ document.getElementById('btn-create-group').addEventListener('click', async () =
     });
 
     console.log('✅ Group created:', groupRef.id);
-
-    // Close modal & reset
     groupModal.classList.add('hidden');
     document.getElementById('group-name-input').value = '';
     document.getElementById('group-members-input').value = '';
 
   } catch (err) {
     console.error('Create group error:', err);
-    alert('Group nahi ban paya. Try again!');
+    alert('Group nahi ban paya: ' + err.message);
   }
 });
 
-// ---- Load Groups ----
+// ---- Load Groups (FIXED - No orderBy) ----
 function loadGroups() {
   if (!currentUser) return;
 
   db.collection('groups')
     .where('members', 'array-contains', currentUser.uid)
-    .orderBy('lastMessageTime', 'desc')
     .onSnapshot((snapshot) => {
       groupListEl.innerHTML = '';
 
@@ -109,16 +102,26 @@ function loadGroups() {
         return;
       }
 
+      const groups = [];
       snapshot.forEach(doc => {
-        const group = doc.data();
-        const name = group.name;
+        groups.push({ id: doc.id, data: doc.data() });
+      });
+
+      groups.sort((a, b) => {
+        const timeA = a.data.lastMessageTime ? a.data.lastMessageTime.toMillis() : 0;
+        const timeB = b.data.lastMessageTime ? b.data.lastMessageTime.toMillis() : 0;
+        return timeB - timeA;
+      });
+
+      groups.forEach(({ id: docId, data: group }) => {
+        const name = group.name || 'Group';
         const initial = name.charAt(0).toUpperCase();
         const lastMsg = group.lastMessage || 'Naya group';
         const time = group.lastMessageTime ? formatTime(group.lastMessageTime.toDate()) : '';
-        const memberCount = group.members.length;
+        const memberCount = group.members ? group.members.length : 0;
 
         const item = document.createElement('div');
-        item.className = `chat-item ${activeChatId === doc.id ? 'active' : ''}`;
+        item.className = `chat-item ${activeChatId === docId ? 'active' : ''}`;
         item.innerHTML = `
           <div class="avatar" style="background: linear-gradient(135deg, #06d6a0, #7c3aed);">${initial}</div>
           <div class="chat-item-info">
@@ -127,8 +130,32 @@ function loadGroups() {
           </div>
           <span class="chat-item-time">${time}</span>
         `;
-        item.addEventListener('click', () => openChat(doc.id, 'group', name));
+        item.addEventListener('click', () => {
+          if (typeof openChat === 'function') openChat(docId, 'group', name);
+        });
         groupListEl.appendChild(item);
       });
+    }, (err) => {
+      console.error('Groups load error:', err);
     });
+}
+
+function formatTime(date) {
+  const now = new Date();
+  const diff = now - date;
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 1) return 'Abhi';
+  if (mins < 60) return `${mins}m`;
+  if (hours < 24) return `${hours}h`;
+  if (days < 7) return `${days}d`;
+  return date.toLocaleDateString('hi-IN', { day: 'numeric', month: 'short' });
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
