@@ -1,6 +1,5 @@
 // ============================================
 // 🔥 FIREBASE CONFIGURATION (Secret-x)
-// Compat format (index.html ke CDN scripts ke liye perfect)
 // ============================================
 
 const firebaseConfig = {
@@ -12,21 +11,23 @@ const firebaseConfig = {
   appId: "1:116252360970:web:98622eb77bf5646c89baf3"
 };
 
-// Initialize Firebase (Compat syntax)
 firebase.initializeApp(firebaseConfig);
 
-// Global References (Taaki baaki files mein use ho sake)
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Offline Persistence Enable karna (Optional but recommended)
-db.enablePersistence()
-  .catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence sirf ek tab mein enable ho sakta hai.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('Yeh browser persistence support nahi karta.');
-    }
-  });
+// Persistence ko optional bana diya (warning hatane ke liye)
+try {
+  db.enablePersistence({ synchronizeTabs: true })
+    .catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.log('ℹ️ Multiple tabs open - persistence memory cache use kar raha hai');
+      } else if (err.code === 'unimplemented') {
+        console.log('ℹ️ Browser persistence support nahi karta');
+      }
+    });
+} catch (e) {
+  console.log('ℹ️ Persistence enable nahi hua, koi baat nahi');
+}
 
 console.log('🔥 Firebase Secret-x ke liye successfully initialize ho gaya!');
