@@ -1,5 +1,5 @@
 // ============================================
-// 💬 CHAT MODULE (v3 - GROUP NOTIFICATIONS FIXED)
+// 💬 CHAT MODULE (v4 - BELL COUNT RESET FIXED)
 // ============================================
 
 let activeChatId = null;
@@ -47,31 +47,30 @@ notifModal.addEventListener('click', (e) => {
 
 function loadNotifications() {
   if (!currentUser) return;
-
   if (unsubscribeNotifs) unsubscribeNotifs();
 
   notifList.innerHTML = '<div class="spinner"></div>';
+  let hasNotifs = false;
+  let totalUnread = 0;
 
-  // Get notifications from chats and groups
-  const allNotifs = [];
-
-  // Chats notifications
-  db.collection('chats')
+  const unsubscribe1 = db.collection('chats')
     .where('participants', 'array-contains', currentUser.uid)
     .onSnapshot((snapshot) => {
       notifList.innerHTML = '';
-      let hasNotifs = false;
+      hasNotifs = false;
+      totalUnread = 0;
 
       snapshot.forEach(doc => {
         const chat = doc.data();
         const unread = chat.unreadCount && chat.unreadCount[currentUser.uid] ? chat.unreadCount[currentUser.uid] : 0;
-        
+        totalUnread += unread;
+
         if (unread > 0) {
           hasNotifs = true;
           const otherUserId = chat.participants.find(p => p !== currentUser.uid);
           const otherUser = chat.participantData ? chat.participantData[otherUserId] : null;
           const name = (otherUser && otherUser.username) ? otherUser.username : 'Unknown';
-          
+
           const item = document.createElement('div');
           item.className = 'notif-item unread';
           item.innerHTML = `
@@ -91,13 +90,14 @@ function loadNotifications() {
       });
 
       // Groups notifications
-      db.collection('groups')
+      const unsubscribe2 = db.collection('groups')
         .where('members', 'array-contains', currentUser.uid)
         .onSnapshot((groupSnap) => {
           groupSnap.forEach(doc => {
             const group = doc.data();
             const unread = group.unreadCount && group.unreadCount[currentUser.uid] ? group.unreadCount[currentUser.uid] : 0;
-            
+            totalUnread += unread;
+
             if (unread > 0) {
               hasNotifs = true;
               const item = document.createElement('div');
@@ -121,36 +121,8 @@ function loadNotifications() {
           if (!hasNotifs) {
             notifList.innerHTML = '<p class="empty-msg">Koi notification nahi hai ✅</p>';
           }
-        });
-    });
-}
 
-// ---- Update Notification Badge ----
-function updateNotifBadge() {
-  if (!currentUser) return;
-
-  let totalUnread = 0;
-
-  db.collection('chats')
-    .where('participants', 'array-contains', currentUser.uid)
-    .onSnapshot((snapshot) => {
-      totalUnread = 0;
-      snapshot.forEach(doc => {
-        const chat = doc.data();
-        const unread = chat.unreadCount && chat.unreadCount[currentUser.uid] ? chat.unreadCount[currentUser.uid] : 0;
-        totalUnread += unread;
-      });
-
-      // Add groups unread
-      db.collection('groups')
-        .where('members', 'array-contains', currentUser.uid)
-        .onSnapshot((groupSnap) => {
-          groupSnap.forEach(doc => {
-            const group = doc.data();
-            const unread = group.unreadCount && group.unreadCount[currentUser.uid] ? group.unreadCount[currentUser.uid] : 0;
-            totalUnread += unread;
-          });
-
+          // Update badge
           if (totalUnread > 0) {
             notifBadge.textContent = totalUnread > 99 ? '99+' : totalUnread;
             notifBadge.classList.remove('hidden');
@@ -158,6 +130,11 @@ function updateNotifBadge() {
             notifBadge.classList.add('hidden');
           }
         });
+
+      unsubscribeNotifs = () => {
+        unsubscribe1();
+        unsubscribe2();
+      };
     });
 }
 
@@ -174,7 +151,7 @@ document.getElementById('btn-start-chat').addEventListener('click', async () => 
     const otherUser = usersSnap.docs[0];
     const otherUserId = otherUser.id;
     const otherUserData = otherUser.data();
-    const otherUsername = otherUserData.username || otherUserData.email || email.split('@')[0];
+    const otherUsername = otherUserData.username || otherUserData.name || otherUserData.email || email.split('@')[0];
 
     const chatId = getChatId(currentUser.uid, otherUserId);
     const chatDoc = await db.collection('chats').doc(chatId).get();
@@ -214,9 +191,6 @@ function getChatId(uid1, uid2) {
 // ---- Load Chats ----
 function loadChats() {
   if (!currentUser) return;
-
-  // Start notification badge listener
-  updateNotifBadge();
 
   db.collection('chats')
     .where('participants', 'array-contains', currentUser.uid)
@@ -265,12 +239,10 @@ function loadChats() {
         item.addEventListener('click', () => openChat(docId, 'direct', name));
         chatListEl.appendChild(item);
       });
-    }, (err) => {
-      console.error('Chats load error:', err);
     });
 }
 
-// ---- Open Chat ----
+// ---- Open Chat (FIXED - Bell Count Reset) ----
 function openChat(chatId, type, name) {
   activeChatId = chatId;
   activeChatType = type;
@@ -283,13 +255,15 @@ function openChat(chatId, type, name) {
 
   document.getElementById('app-screen').classList.add('chat-open');
 
-  // Remove old settings button
   const oldBtn = document.getElementById('btn-group-settings');
   if (oldBtn) oldBtn.remove();
 
   if (unsubscribeMessages) unsubscribeMessages();
 
   messagesContainer.innerHTML = '<div class="spinner"></div>';
+
+  //  CRITICAL FIX: Reset unread count IMMEDIATELY when chat opens
+  resetUnreadCount(chatId, type);
 
   const collection = type === 'direct' ? 'chats' : 'groups';
 
@@ -328,23 +302,29 @@ function openChat(chatId, type, name) {
       });
 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-      // Reset unread count for this chat
-      if (type === 'direct') {
-        db.collection('chats').doc(chatId).update({
-          [`unreadCount.${currentUser.uid}`]: 0
-        }).catch(() => {});
-      } else if (type === 'group') {
-        db.collection('groups').doc(chatId).update({
-          [`unreadCount.${currentUser.uid}`]: 0
-        }).catch(() => {});
-      }
     }, (err) => {
       console.error('Messages error:', err);
       messagesContainer.innerHTML = '<p class="empty-msg">Messages load nahi ho rahe</p>';
     });
 
   document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+}
+
+// ⭐ NEW FUNCTION: Reset Unread Count
+async function resetUnreadCount(chatId, type) {
+  if (!currentUser) return;
+  
+  const collection = type === 'direct' ? 'chats' : 'groups';
+  const fieldPath = `unreadCount.${currentUser.uid}`;
+  
+  try {
+    await db.collection(collection).doc(chatId).update({
+      [fieldPath]: 0
+    });
+    console.log('✅ Unread count reset to 0 for', chatId);
+  } catch (err) {
+    console.error('❌ Unread count reset error:', err);
+  }
 }
 
 // ---- Send Message ----
@@ -375,7 +355,6 @@ async function sendMessage() {
       const otherUserId = chatDoc.data().participants.find(p => p !== currentUser.uid);
       updateData[`unreadCount.${otherUserId}`] = firebase.firestore.FieldValue.increment(1);
     } else if (activeChatType === 'group') {
-      // Increment unread for all members except sender
       const groupDoc = await db.collection('groups').doc(activeChatId).get();
       const members = groupDoc.data().members || [];
       const unreadUpdates = {};
