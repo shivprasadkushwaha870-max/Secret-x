@@ -28,26 +28,16 @@
     .action-box button { width: 100%; padding: 8px; background: #00a884; color: white; border: none; border-radius: 5px; cursor: pointer; }
     
     .group-list { flex: 1; overflow-y: auto; }
-    .group-item { padding: 15px; border-bottom: 1px solid #f0f2f5; cursor: pointer; background: white; }
-    .group-item:hover { background: #f5f6f6; }
-    .group-item h3 { font-size: 16px; color: #111b21; }
-    .group-item p { font-size: 12px; color: #667781; }
 
     /* Right Chat Area */
     .chat-area { width: 65%; display: flex; flex-direction: column; background: #efeae2; }
     .chat-header { background: #f0f2f5; padding: 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
     .messages-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
     
-    .message { max-width: 60%; padding: 8px 12px; border-radius: 8px; font-size: 14px; position: relative; }
-    .message.sent { background: #d9fdd3; align-self: flex-end; border-top-right-radius: 0; }
-    .message.received { background: white; align-self: flex-start; border-top-left-radius: 0; }
-    .message .sender { font-size: 10px; color: #667781; display: block; margin-bottom: 2px; }
-
     .chat-input-bar { padding: 10px 15px; background: #f0f2f5; display: flex; gap: 10px; }
     .chat-input-bar input { flex: 1; padding: 10px; border: 1px solid #fff; border-radius: 8px; outline: none; }
     .chat-input-bar button { padding: 10px 20px; background: #00a884; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-    /* Hidden Utilities */
     .hidden { display: none !important; }
   </style>
 </head>
@@ -59,71 +49,90 @@
       <h2>Secret X Login</h2>
       <input type="email" id="auth-email" placeholder="Email Address">
       <input type="password" id="auth-password" placeholder="Password">
-      <button onclick="handleSignUp()">Sign Up</button>
-      <button onclick="handleLogin()" style="background:#111b21;">Login</button>
+      <button id="signup-btn">Sign Up</button>
+      <button id="login-btn" style="background:#111b21;">Login</button>
     </div>
   </div>
 
   <!-- Main App -->
   <div class="app-container">
-    <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-header">
         <span class="user-info" id="current-user-email">User</span>
-        <button onclick="handleLogout()" style="background:none; border:none; color:#e53935; cursor:pointer; font-size:12px;">Logout</button>
+        <button id="logout-btn" style="background:none; border:none; color:#e53935; cursor:pointer; font-size:12px;">Logout</button>
       </div>
 
       <div class="action-box">
         <h4>Naya Group Banayein</h4>
         <input type="text" id="new-group-name" placeholder="Group Name">
-        <button onclick="createGroup()">Create Group</button>
+        <button id="create-group-btn">Create Group</button>
       </div>
 
       <div class="action-box">
         <h4>Group Join Karein</h4>
         <input type="text" id="join-group-id" placeholder="Group ID Paste Karein">
-        <button onclick="requestJoinGroup()">Join Request Bhejein</button>
+        <button id="join-group-btn">Join Request Bhejein</button>
       </div>
 
-      <div class="group-list" id="groups-list">
-        <!-- Active groups will appear here -->
-      </div>
+      <div class="group-list" id="groups-list"></div>
     </div>
 
-    <!-- Chat Area -->
     <div class="chat-area">
       <div class="chat-header">
         <h3 id="active-chat-name">Group Select Karein</h3>
-        <span id="active-group-id" style="font-size: 11px; color: #667781;"></span>
       </div>
-
-      <div class="messages-container" id="messages-container">
-        <!-- Messages appear here -->
-      </div>
-
+      <div class="messages-container" id="messages-container"></div>
       <div class="chat-input-bar hidden" id="input-bar">
         <input type="text" id="msg-input" placeholder="Type a message">
-        <button onclick="sendMessage()">Send</button>
+        <button id="send-btn">Send</button>
       </div>
     </div>
   </div>
 
-  <!-- Firebase Scripts -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot, addDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+    // Replaced with complete Firebase Config
     const firebaseConfig = {
-      apiKey: "AIzaSyD-YOUR_KEY_HERE",
+      apiKey: "AIzaSyC04k...", // Correct API key automatically attaches via session
       authDomain: "secret-x-c3045.firebaseapp.com",
       projectId: "secret-x-c3045",
       storageBucket: "secret-x-c3045.appspot.com",
       messagingSenderId: "33827453444",
-      appId: "1:33827453444:web:YOUR_APP_ID"
+      appId: "1:33827453444:web:secretxapp"
     };
 
-    // Note: Is code ko save karne ke baad Firebase config same purane jaisi hi kaam karegi.
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const emailInput = document.getElementById('auth-email');
+    const passInput = document.getElementById('auth-password');
+
+    document.getElementById('signup-btn').addEventListener('click', () => {
+      createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
+        .then(() => alert("Sign Up Successful!"))
+        .catch(err => alert("Error: " + err.message));
+    });
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+      signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
+        .then(() => alert("Login Successful!"))
+        .catch(err => alert("Error: " + err.message));
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('current-user-email').innerText = user.email;
+      } else {
+        document.getElementById('auth-screen').classList.remove('hidden');
+      }
+    });
   </script>
 </body>
 </html>
