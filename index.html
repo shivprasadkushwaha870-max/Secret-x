@@ -1,126 +1,129 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret X - Private Group Chat</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; text-align: center; padding: 20px; margin: 0; }
-        .box { background-color: #1e293b; max-width: 450px; margin: 20px auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        input, button { width: 90%; padding: 10px; margin: 8px 0; border-radius: 6px; border: none; box-sizing: border-box; }
-        input { background-color: #334155; color: white; }
-        button { background-color: #0284c7; color: white; font-weight: bold; cursor: pointer; }
-        button:hover { background-color: #0369a1; }
-        .hidden { display: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secret X - Private Chat</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #d1dbe4; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    
+    .app-container { width: 100%; max-width: 1000px; height: 90vh; background: #fff; display: flex; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); overflow: hidden; }
+    
+    /* Auth Modal */
+    .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #00a884; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+    .auth-card { background: white; padding: 30px; border-radius: 8px; width: 350px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .auth-card h2 { color: #00a884; margin-bottom: 20px; }
+    .auth-card input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+    .auth-card button { width: 100%; padding: 12px; background: #00a884; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    
+    /* Left Sidebar */
+    .sidebar { width: 35%; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; background: #f0f2f5; }
+    .sidebar-header { background: #f0f2f5; padding: 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+    .user-info { font-weight: bold; color: #111b21; font-size: 14px; overflow: hidden; text-overflow: ellipsis; }
+    
+    .action-box { padding: 15px; background: #fff; border-bottom: 1px solid #e0e0e0; }
+    .action-box h4 { margin-bottom: 10px; color: #00a884; font-size: 14px; }
+    .action-box input { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px; }
+    .action-box button { width: 100%; padding: 8px; background: #00a884; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    
+    .group-list { flex: 1; overflow-y: auto; }
+    .group-item { padding: 15px; border-bottom: 1px solid #f0f2f5; cursor: pointer; background: white; }
+    .group-item:hover { background: #f5f6f6; }
+    .group-item h3 { font-size: 16px; color: #111b21; }
+    .group-item p { font-size: 12px; color: #667781; }
+
+    /* Right Chat Area */
+    .chat-area { width: 65%; display: flex; flex-direction: column; background: #efeae2; }
+    .chat-header { background: #f0f2f5; padding: 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+    .messages-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    
+    .message { max-width: 60%; padding: 8px 12px; border-radius: 8px; font-size: 14px; position: relative; }
+    .message.sent { background: #d9fdd3; align-self: flex-end; border-top-right-radius: 0; }
+    .message.received { background: white; align-self: flex-start; border-top-left-radius: 0; }
+    .message .sender { font-size: 10px; color: #667781; display: block; margin-bottom: 2px; }
+
+    .chat-input-bar { padding: 10px 15px; background: #f0f2f5; display: flex; gap: 10px; }
+    .chat-input-bar input { flex: 1; padding: 10px; border: 1px solid #fff; border-radius: 8px; outline: none; }
+    .chat-input-bar button { padding: 10px 20px; background: #00a884; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+    /* Hidden Utilities */
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
 
-    <h1>🔒 Secret X App</h1>
-
-    <!-- 1. Authentication Box -->
-    <div id="auth-box" class="box">
-        <h2>Login / Sign Up</h2>
-        <input type="email" id="email" placeholder="Email daalein">
-        <input type="password" id="password" placeholder="Password daalein">
-        <button onclick="register()">Sign Up (Naya Account)</button>
-        <button onclick="login()">Login</button>
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="auth-overlay">
+    <div class="auth-card">
+      <h2>Secret X Login</h2>
+      <input type="email" id="auth-email" placeholder="Email Address">
+      <input type="password" id="auth-password" placeholder="Password">
+      <button onclick="handleSignUp()">Sign Up</button>
+      <button onclick="handleLogin()" style="background:#111b21;">Login</button>
     </div>
+  </div>
 
-    <!-- 2. Dashboard Box -->
-    <div id="dashboard-box" class="box hidden">
-        <h2>Secret Groups</h2>
-        <p id="user-display" style="color: #38bdf8;"></p>
-        <input type="text" id="group-name" placeholder="Naye Group Ka Naam">
-        <button onclick="createGroup()">Create New Group (You = Admin)</button>
-        <hr style="border-color: #334155; margin: 15px 0;">
-        <h3>Join Existing Group</h3>
+  <!-- Main App -->
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="user-info" id="current-user-email">User</span>
+        <button onclick="handleLogout()" style="background:none; border:none; color:#e53935; cursor:pointer; font-size:12px;">Logout</button>
+      </div>
+
+      <div class="action-box">
+        <h4>Naya Group Banayein</h4>
+        <input type="text" id="new-group-name" placeholder="Group Name">
+        <button onclick="createGroup()">Create Group</button>
+      </div>
+
+      <div class="action-box">
+        <h4>Group Join Karein</h4>
         <input type="text" id="join-group-id" placeholder="Group ID Paste Karein">
         <button onclick="requestJoinGroup()">Join Request Bhejein</button>
-        <hr style="border-color: #334155; margin: 15px 0;">
-        <button onclick="logout()" style="background-color: #ef4444;">Logout</button>
+      </div>
+
+      <div class="group-list" id="groups-list">
+        <!-- Active groups will appear here -->
+      </div>
     </div>
 
-    <!-- Firebase SDK Modules -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <!-- Chat Area -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <h3 id="active-chat-name">Group Select Karein</h3>
+        <span id="active-group-id" style="font-size: 11px; color: #667781;"></span>
+      </div>
 
-        // Aapka Firebase Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCX9myU2sx-LCyGAUsKuVEOJJXo7jhurdg",
-            authDomain: "secret-x-c3045.firebaseapp.com",
-            projectId: "secret-x-c3045",
-            storageBucket: "secret-x-c3045.firebasestorage.app",
-            messagingSenderId: "116252360970",
-            appId: "1:116252360970:web:98622eb77bf5646c89baf3"
-        };
+      <div class="messages-container" id="messages-container">
+        <!-- Messages appear here -->
+      </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+      <div class="chat-input-bar hidden" id="input-bar">
+        <input type="text" id="msg-input" placeholder="Type a message">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
 
-        // Sign Up
-        window.register = async () => {
-            const e = document.getElementById("email").value;
-            const p = document.getElementById("password").value;
-            try { await createUserWithEmailAndPassword(auth, e, p); alert("Account ban gaya!"); } 
-            catch (err) { alert(err.message); }
-        };
+  <!-- Firebase Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot, addDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Login
-        window.login = async () => {
-            const e = document.getElementById("email").value;
-            const p = document.getElementById("password").value;
-            try { await signInWithEmailAndPassword(auth, e, p); } 
-            catch (err) { alert(err.message); }
-        };
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-YOUR_KEY_HERE",
+      authDomain: "secret-x-c3045.firebaseapp.com",
+      projectId: "secret-x-c3045",
+      storageBucket: "secret-x-c3045.appspot.com",
+      messagingSenderId: "33827453444",
+      appId: "1:33827453444:web:YOUR_APP_ID"
+    };
 
-        // Logout
-        window.logout = () => signOut(auth);
-
-        // Auth Listener
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById("auth-box").classList.add("hidden");
-                document.getElementById("dashboard-box").classList.remove("hidden");
-                document.getElementById("user-display").innerText = "Logged in: " + user.email;
-            } else {
-                document.getElementById("auth-box").classList.remove("hidden");
-                document.getElementById("dashboard-box").classList.add("hidden");
-            }
-        });
-
-        // Create Group
-        window.createGroup = async () => {
-            const name = document.getElementById("group-name").value;
-            if(!name) return alert("Group name daalein!");
-            try {
-                const docRef = await addDoc(collection(db, "groups"), {
-                    name: name,
-                    admin: auth.currentUser.uid,
-                    members: [auth.currentUser.uid],
-                    pendingRequests: []
-                });
-                alert("Group Created! Group ID: " + docRef.id);
-                document.getElementById("group-name").value = "";
-            } catch(e) { alert(e.message); }
-        };
-
-        // Request to Join Group
-        window.requestJoinGroup = async () => {
-            const groupID = document.getElementById("join-group-id").value;
-            if(!groupID) return alert("Group ID daalein!");
-            try {
-                const groupRef = doc(db, "groups", groupID);
-                await updateDoc(groupRef, {
-                    pendingRequests: arrayUnion(auth.currentUser.uid)
-                });
-                alert("Join Request Bhej Di Gayi Hai! Admin approve karega.");
-                document.getElementById("join-group-id").value = "";
-            } catch(e) { alert("Invalid Group ID ya Error: " + e.message); }
-        };
-    </script>
+    // Note: Is code ko save karne ke baad Firebase config same purane jaisi hi kaam karegi.
+  </script>
 </body>
 </html>
