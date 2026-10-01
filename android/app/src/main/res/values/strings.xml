@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Secret-x</string>
+    <string name="title_activity_main">Secret-x Private Chat</string>
+    <string name="package_name">com.secretx.app</string>
+    <string name="custom_url_scheme">com.secretx.app</string>
+</resources>
