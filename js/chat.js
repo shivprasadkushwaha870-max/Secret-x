@@ -1,5 +1,5 @@
 // ============================================
-// 💬 CHAT MODULE (v4 - BELL COUNT RESET FIXED)
+// 💬 CHAT MODULE (v5 - COMPLETE FIXED VERSION)
 // ============================================
 
 let activeChatId = null;
@@ -89,7 +89,6 @@ function loadNotifications() {
         }
       });
 
-      // Groups notifications
       const unsubscribe2 = db.collection('groups')
         .where('members', 'array-contains', currentUser.uid)
         .onSnapshot((groupSnap) => {
@@ -122,7 +121,6 @@ function loadNotifications() {
             notifList.innerHTML = '<p class="empty-msg">Koi notification nahi hai ✅</p>';
           }
 
-          // Update badge
           if (totalUnread > 0) {
             notifBadge.textContent = totalUnread > 99 ? '99+' : totalUnread;
             notifBadge.classList.remove('hidden');
@@ -138,30 +136,50 @@ function loadNotifications() {
     });
 }
 
-// ---- Start New Chat ----
+// ---- Start New Chat (FIXED) ----
 document.getElementById('btn-start-chat').addEventListener('click', async () => {
-  const email = document.getElementById('new-chat-email').value.trim();
-  if (!email) { alert('Email daalo!'); return; }
-  if (email === currentUserData.email) { alert('Khud se chat nahi kar sakte! 😄'); return; }
+  const email = document.getElementById('new-chat-email').value.trim().toLowerCase();
+  
+  if (!email) { 
+    alert('Pehle email daalo!'); 
+    return; 
+  }
+  
+  if (email === (currentUserData.email || '').toLowerCase()) { 
+    alert('Khud se chat nahi kar sakte! 😄'); 
+    return; 
+  }
 
   try {
+    console.log('🔍 Searching for user:', email);
+    
     const usersSnap = await db.collection('users').where('email', '==', email).get();
-    if (usersSnap.empty) { alert('Yeh email registered nahi hai!'); return; }
+    
+    if (usersSnap.empty) {
+      alert(' Yeh email Secret-x pe registered nahi hai!\n\nDusra user pehle register kare.');
+      return;
+    }
 
     const otherUser = usersSnap.docs[0];
     const otherUserId = otherUser.id;
     const otherUserData = otherUser.data();
     const otherUsername = otherUserData.username || otherUserData.name || otherUserData.email || email.split('@')[0];
 
+    console.log('✅ User found:', otherUsername, otherUserId);
+
     const chatId = getChatId(currentUser.uid, otherUserId);
+    console.log('📝 Chat ID:', chatId);
+
     const chatDoc = await db.collection('chats').doc(chatId).get();
 
     if (!chatDoc.exists) {
+      console.log('🆕 Creating new chat...');
+      
       await db.collection('chats').doc(chatId).set({
         participants: [currentUser.uid, otherUserId],
         participantData: {
           [currentUser.uid]: {
-            username: currentUserData.username || 'User',
+            username: currentUserData.username || currentUserData.name || 'User',
             email: currentUserData.email || ''
           },
           [otherUserId]: {
@@ -172,15 +190,23 @@ document.getElementById('btn-start-chat').addEventListener('click', async () => 
         lastMessage: '',
         lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        unreadCount: { [currentUser.uid]: 0, [otherUserId]: 0 }
+        unreadCount: { 
+          [currentUser.uid]: 0, 
+          [otherUserId]: 0 
+        }
       });
+      
+      console.log('✅ Chat created successfully!');
+    } else {
+      console.log('💬 Existing chat opened');
     }
 
     document.getElementById('new-chat-email').value = '';
     openChat(chatId, 'direct', otherUsername);
+    
   } catch (err) {
-    console.error('Start chat error:', err);
-    alert('Chat start nahi hua: ' + err.message);
+    console.error('❌ Start chat error:', err);
+    alert('Chat start nahi hua: ' + err.message + '\n\nConsole check karo (F12)');
   }
 });
 
@@ -262,7 +288,7 @@ function openChat(chatId, type, name) {
 
   messagesContainer.innerHTML = '<div class="spinner"></div>';
 
-  //  CRITICAL FIX: Reset unread count IMMEDIATELY when chat opens
+  // Reset unread count immediately
   resetUnreadCount(chatId, type);
 
   const collection = type === 'direct' ? 'chats' : 'groups';
@@ -310,7 +336,7 @@ function openChat(chatId, type, name) {
   document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 }
 
-// ⭐ NEW FUNCTION: Reset Unread Count
+// Reset Unread Count
 async function resetUnreadCount(chatId, type) {
   if (!currentUser) return;
   
@@ -410,3 +436,5 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+console.log('✅ Chat module loaded successfully!');
