@@ -20,7 +20,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
       
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -29,7 +28,7 @@ jobs:
           java-version: '17'
       
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -45,28 +44,24 @@ jobs:
       
       - name: Sync web assets
         run: npx cap sync android
-      
-      - name: Build APK
+
+      - name: Decode Signing Key
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > android/app/my-upload-key.jks
+
+      - name: Build Signed APK
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug
-      
-      - name: Upload APK Artifact
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=my-upload-key.jks \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEY_STORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Signed APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Secret-x-Debug-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 90
-      
-      - name: Create Release ZIP
-        run: |
-          cd android/app/build/outputs/apk/debug
-          zip -r ../../../../../Secret-x-APK.zip app-debug.apk
-      
-      - name: Upload ZIP Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Secret-x-APK-ZIP
-          path: Secret-x-APK.zip
+          name: Secret-x-Signed-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
           retention-days: 90
