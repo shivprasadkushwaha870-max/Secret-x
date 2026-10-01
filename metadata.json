@@ -1,0 +1,40 @@
+{
+  "title": "Secret-x Private Chat",
+  "appIdentifier": "com.secretx.app",
+  "description": "Secret-x is a secure, private chat application that lets you communicate with friends and family without worrying about privacy. Features include end-to-end encrypted messaging, group chats, admin controls, and real-time notifications.",
+  "summary": "Private. Secure. Yours. - Encrypted chat app",
+  "categories": ["Communication", "Social"],
+  "website": "https://shivprasadkushwaha870-max.github.io/Secret-x/",
+  "privacyPolicy": "https://shivprasadkushwaha870-max.github.io/Secret-x/legal/privacy-policy.html",
+  "termsOfService": "https://shivprasadkushwaha870-max.github.io/Secret-x/legal/terms-of-service.html",
+  "supportEmail": "shivprasadkushwaha870@gmail.com",
+  "supportPhone": "",
+  "author": "Shivprasad Kushwaha",
+  "authorEmail": "shivprasadkushwaha870@gmail.com",
+  "authorWebsite": "https://github.com/shivprasadkushwaha870-max",
+  "license": "MIT",
+  "changelog": "Initial release with chat, groups, and notifications",
+  "recentChanges": "First version - Private messaging, group chats, admin controls, notifications",
+  "version": "1.0.0",
+  "versionCode": 1,
+  "releaseNotes": "Welcome to Secret-x! Your private chat app is here.",
+  "contentRating": "Everyone",
+  "languages": ["en", "hi"],
+  "android": {
+    "minSdkVersion": 22,
+    "targetSdkVersion": 34,
+    "permissions": [
+      "INTERNET",
+      "ACCESS_NETWORK_STATE",
+      "VIBRATE",
+      "WAKE_LOCK",
+      "RECEIVE_BOOT_COMPLETED",
+      "POST_NOTIFICATIONS"
+    ],
+    "features": []
+  },
+  "ios": {
+    "bundleIdentifier": "com.secretx.app",
+    "minimumOsVersion": "13.0"
+  }
+}
