@@ -1,22 +1,67 @@
 {
   "name": "Secret-x Private Chat",
   "short_name": "Secret-x",
-  "description": "Private. Secure. Yours. - Encrypted chat application",
-  "start_url": "./",
+  "description": "Private. Secure. Yours. - End-to-end encrypted chat application with groups and real-time messaging.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0a0a0f",
   "theme_color": "#7c3aed",
-  "orientation": "portrait",
+  "categories": ["social", "communication", "messaging"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
-      "src": "assets/images/icon-192.png",
+      "src": "./assets/images/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "assets/images/icon-512.png",
+      "src": "./assets/images/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/images/icon-adaptive.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "./assets/images/screenshot-1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Chat",
+      "short_name": "Chat",
+      "description": "Start a new private chat",
+      "url": "./index.html?new-chat=true",
+      "icons": [{ "src": "./assets/images/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "New Group",
+      "short_name": "Group",
+      "description": "Create a new group",
+      "url": "./index.html?new-group=true",
+      "icons": [{ "src": "./assets/images/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }
