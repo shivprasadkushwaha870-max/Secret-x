@@ -1,0 +1,25 @@
+{
+  "name": "secret-x",
+  "version": "1.0.0",
+  "description": "Secret-x: Private, Secure Chat Application",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Open index.html in browser'",
+    "build": "echo 'No build step - static site'"
+  },
+  "keywords": ["chat", "messaging", "private", "secure", "firebase"],
+  "author": "Shivprasad Kushwaha",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/core": "^6.1.0",
+    "@capacitor/android": "^6.1.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/keyboard": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.0"
+  }
+}
