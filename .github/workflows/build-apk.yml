@@ -36,20 +36,29 @@ jobs:
         run: |
           mkdir -p dist
           cp -r index.html css js legal manifest.json sw.js metadata.json dist/ 2>/dev/null || true
+          npx cap init "Secret-x" "com.secretx.app" --web-dir=dist --force
           if [ ! -d "android" ]; then
             npx cap add android
           fi
           npx cap sync android
 
-      - name: Build APK
+      - name: Decode Signing Key
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > android/app/my-upload-key.jks
+
+      - name: Build Signed APK
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=my-upload-key.jks \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEY_STORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload Debug APK Artifact
+      - name: Upload Signed APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Secret-x-Debug-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Secret-x-Signed-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
           retention-days: 90
