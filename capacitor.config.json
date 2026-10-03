@@ -1,0 +1,16 @@
+{
+  "appId": "com.secretx.app",
+  "appName": "Secret-x",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0a0a0f"
+    }
+  }
+}
