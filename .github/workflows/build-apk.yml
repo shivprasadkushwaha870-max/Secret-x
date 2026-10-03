@@ -33,10 +33,11 @@ jobs:
       - name: Install Capacitor CLI
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Build Web Assets & Sync Capacitor
+      - name: Fix WebDir and Sync Capacitor
         run: |
           mkdir -p dist
           if [ -f "index.html" ]; then cp index.html dist/; fi
+          sed -i 's/"webDir": "."/"webDir": "dist"/g' capacitor.config.json || true
           npx cap sync android
 
       - name: Decode Signing Key
