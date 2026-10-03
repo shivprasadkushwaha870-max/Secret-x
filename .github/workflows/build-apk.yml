@@ -20,7 +20,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # Cache hataya kyunki lock file nahi hai
       
       - name: Setup Java JDK
         uses: actions/setup-java@v4
@@ -40,6 +39,8 @@ jobs:
       
       - name: Initialize Capacitor
         run: |
+          # Global install taaki npx sahi se kaam kare
+          npm install -g @capacitor/cli @capacitor/core @capacitor/android
           npx cap init "Secret-x" "com.secretx.app" --web-dir=www --force
           npx cap add android
       
