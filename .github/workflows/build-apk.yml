@@ -39,9 +39,9 @@ jobs:
       
       - name: Initialize Capacitor
         run: |
-          # Global install taaki npx sahi se kaam kare
           npm install -g @capacitor/cli @capacitor/core @capacitor/android
-          npx cap init "Secret-x" "com.secretx.app" --web-dir=www --force
+          rm -f capacitor.config.json capacitor.config.ts
+          npx cap init "Secret-x" "com.secretx.app" --web-dir=www
           npx cap add android
       
       - name: Sync Web Assets
