@@ -5,7 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch: # Manual run ke liye button
 
 jobs:
   build:
@@ -19,49 +19,41 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20' # Stable version
+          cache: 'npm'
       
-      - name: Setup Java
+      - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '17' # Android build ke liye best
       
-      - name: Install dependencies
-        run: npm install
+      - name: Install Dependencies
+        run: npm ci
       
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-      
-      - name: Install Capacitor
+      - name: Install Capacitor & Android Platform
         run: |
           npm install @capacitor/core @capacitor/android @capacitor/cli
-      
-      - name: Initialize Capacitor
-        run: |
           npx cap init "Secret-x" "com.secretx.app" --web-dir=. --force
           npx cap add android
       
-      - name: Sync web assets
+      - name: Sync Web Assets
         run: npx cap sync android
-
-      - name: Decode Signing Key
+      
+      - name: Decode Signing Key (Optional for Debug)
+        if: github.event_name != 'pull_request'
         run: |
-          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > android/app/my-upload-key.jks
-
-      - name: Build Signed APK
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/my-upload-key.jks || true
+      
+      - name: Build Debug APK
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=my-upload-key.jks \
-            -Pandroid.injected.signing.store.password=${{ secrets.KEY_STORE_PASSWORD }} \
-            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
-
-      - name: Upload Signed APK Artifact
+          ./gradlew assembleDebug --stacktrace
+      
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Secret-x-Signed-APK
-          path: android/app/build/outputs/apk/release/app-release.apk
-          retention-days: 90
+          name: Secret-x-Debug-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
