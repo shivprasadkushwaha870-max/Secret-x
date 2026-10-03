@@ -33,9 +33,10 @@ jobs:
       - name: Install Capacitor CLI
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Add Android Platform
+      - name: Build Web Assets & Sync Capacitor
         run: |
-          npx cap add android || true
+          mkdir -p dist
+          if [ -f "index.html" ]; then cp index.html dist/; fi
           npx cap sync android
 
       - name: Decode Signing Key
