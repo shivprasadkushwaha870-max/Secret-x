@@ -30,17 +30,13 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - name: Install Capacitor
+      - name: Install Capacitor CLI
+        run: npm install @capacitor/cli @capacitor/core @capacitor/android
+
+      - name: Add Android Platform
         run: |
-          npm install @capacitor/core @capacitor/android @capacitor/cli
-      
-      - name: Initialize Capacitor
-        run: |
-          npx cap init "Secret-x" "com.secretx.app" --web-dir=. --force
-          npx cap add android
-      
-      - name: Sync web assets
-        run: npx cap sync android
+          npx cap add android || true
+          npx cap sync android
 
       - name: Decode Signing Key
         run: |
