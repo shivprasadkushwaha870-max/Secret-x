@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Secret-x | Private Chat</title>
+  <title>Secret-x Private Chat</title>
   
-  <!-- PWA & SEO Meta Tags (PWABuilder ke liye zaroori) -->
-  <meta name="description" content="Private. Secure. Yours. - Encrypted chat application" />
+  <!-- PWA & SEO Meta Tags -->
+  <meta name="description" content="Secret-x is a secure, private chat application that lets you communicate with friends and family without worrying about privacy. Features include end-to-end encrypted messaging, group chats, admin controls, and real-time notifications." />
+  <meta property="og:title" content="Secret-x Private Chat" />
+  <meta property="og:description" content="Secret-x is a secure, private chat application that lets you communicate with friends and family without worrying about privacy. Features include end-to-end encrypted messaging, group chats, admin controls, and real-time notifications." />
   <meta name="theme-color" content="#7c3aed" />
   <link rel="manifest" href="./manifest.json" />
   
@@ -17,7 +19,7 @@
   <!-- CSS -->
   <link rel="stylesheet" href="css/style.css" />
   
-  <!-- Critical Inline CSS (Screen switch fix) -->
+  <!-- Critical Inline CSS (Screen switch fix & in-app toast) -->
   <style>
     #auth-screen.active { display: flex !important; }
     #app-screen.active { display: flex !important; }
@@ -25,6 +27,45 @@
     #app-screen:not(.active) { display: none !important; }
     .hidden { display: none !important; }
     .screen { display: none; }
+
+    /* In-app Toast Notification */
+    #app-toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      max-width: 90vw;
+    }
+    .app-toast {
+      background: #181826;
+      color: #e2e8f0;
+      border: 1px solid #7c3aed;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(124, 58, 237, 0.3);
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.4;
+      pointer-events: auto;
+      animation: toastIn 0.25s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .app-toast.fadeOut {
+      animation: toastOut 0.25s ease-in forwards;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(12px) scale(0.96); }
+    }
   </style>
   
   <!-- Firebase SDKs -->
@@ -174,6 +215,35 @@
     </div>
   </div>
 
+  <!-- In-App Toast Notification Container -->
+  <div id="app-toast-container"></div>
+
+  <script>
+    // Iframe-safe alert and notification helper
+    function showAppToast(message, duration = 3500) {
+      try {
+        const container = document.getElementById('app-toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'app-toast';
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.classList.add('fadeOut');
+          setTimeout(() => toast.remove(), 260);
+        }, duration);
+      } catch (e) {
+        console.log('[Toast Notice]:', message);
+      }
+    }
+
+    // Override window.alert so that iframe restrictions do not throw DOMExceptions
+    window.alert = function(msg) {
+      showAppToast(String(msg || ''));
+    };
+  </script>
+
+  <script src="/api/config.js"></script>
   <script src="js/firebase.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/chat.js"></script>

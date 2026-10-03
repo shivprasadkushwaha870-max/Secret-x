@@ -19,6 +19,7 @@
   "versionCode": 1,
   "releaseNotes": "Welcome to Secret-x! Your private chat app is here.",
   "contentRating": "Everyone",
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"],
   "languages": ["en", "hi"],
   "android": {
     "minSdkVersion": 22,

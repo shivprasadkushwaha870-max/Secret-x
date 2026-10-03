@@ -2,7 +2,7 @@
 // 🔥 FIREBASE CONFIGURATION (Secret-x)
 // ============================================
 
-const firebaseConfig = {
+const firebaseConfig = window.FIREBASE_CONFIG || {
   apiKey: "AIzaSyCX9myU2sx-LCyGAUsKuVEOJJXo7jhurdg",
   authDomain: "secret-x-c3045.firebaseapp.com",
   projectId: "secret-x-c3045",

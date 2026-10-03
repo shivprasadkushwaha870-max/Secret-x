@@ -1,6 +1,0 @@
-{
-  "appId": "com.secretx.app",
-  "appName": "Secret-x",
-  "webDir": "dist",
-  "bundledWebRuntime": false
-}
